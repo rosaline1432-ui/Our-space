@@ -172,7 +172,7 @@
     <div class="hidden" id="secretContent">
       <h3>Private Area</h3>
       <br>
-      <p>𝓦𝓮𝓵𝓬𝓸𝓶𝓮 𝓽𝓸 𝓸𝓾𝓻 𝓭𝓻𝓮𝓪ⓜ 𝓡𝓸𝓶𝓪𝓷𝓽𝓲𝐜 𝓪implemented 𝓯𝓪𝓷𝓽𝓪𝓼𝔂 𝓦𝓸𝐫𝐥𝐝.</p>
+      <p>𝓦𝓮𝓵𝓬𝓸𝓶𝓮 𝓽𝓸 𝓸𝓾𝓻 𝓭𝓻𝓮𝓪ⓜ 𝓡𝓸𝓶𝓪𝓷𝓽𝓲𝐜 𝓪implemented 𝓯𝓪𝓷𝓽𝓪𝓼𝔂 𝓦𝓸𝐫𝐥𝓭.</p>
 
       <div class="board-container">
         <h3 style="color: #ff4d8d;">Our Message Board</h3>
@@ -196,8 +196,8 @@
     const SUPABASE_URL = "https://wexbbywexvpsscxtuunx.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndleGJieXdleHZwc3NjeHR1dW54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY3NDM2MDAsImV4cCI6MjAzMjMyMzYwMH0.3F6_rYIcl2zS6Yy9_16p_mIorP2j7Wv7B9P8YI2bVjg";
     
-    // FIXED LINE BELOW: Changed 'supabase.createClient' to 'supabaseClient.createClient'
-    const supabaseConnection = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Fixed database Initialization name conflict
+    const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function checkPassword(){
       const password = document.getElementById("password").value;
@@ -207,7 +207,7 @@
         setInterval(loadNotes, 7000);
         
         const music = document.getElementById("bgMusic");
-        music.play().catch(e => console.log("Audio streaming active."));
+        music.play().catch(e => console.log("Audio placement complete."));
       } else {
         alert("Wrong Password");
       }
@@ -225,7 +225,7 @@
         postBtn.disabled = true;
         postBtn.innerText = "Sending...";
 
-        const { error } = await supabaseConnection
+        const { error } = await dbClient
           .from('messages')
           .insert([{ author: author, text: text }]);
 
@@ -244,7 +244,7 @@
     async function loadNotes() {
       const notesSpace = document.getElementById("notesSpace");
       
-      const { data: notes, error } = await supabaseConnection
+      const { data: notes, error } = await dbClient
         .from('messages')
         .select('*')
         .order('id', { ascending: false });

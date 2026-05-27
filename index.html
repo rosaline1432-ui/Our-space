@@ -12,21 +12,112 @@
             margin: 0;
         }
         body {
-            background-index: #120118;
             background-color: #120118;
             color: white;
             font-family: Arial, sans-serif;
             min-height: 100vh;
             padding-bottom: 60px;
+            position: relative;
+            overflow-x: hidden;
         }
+        
+        /* --- 1. FLOATING HEARTS BACKGROUND CANVAS --- */
+        #heartsCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Ensure content stays above the floating hearts background */
+        header, .hero, .secret-box, footer {
+            position: relative;
+            z-index: 1;
+        }
+
         header {
             text-align: center;
             padding: 20px;
             background: #1c1124;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
         }
         header h1 {
             font-size: 2rem;
         }
+        
+        /* --- 2. PULSING ONLINE STATUS GLOW --- */
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #00ff66;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00ff66;
+            animation: pulseGlow 1.5s infinite ease-in-out;
+        }
+        .status-text {
+            font-size: 0.75rem;
+            color: #ccc;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+        @keyframes pulseGlow {
+            0% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 4px #00ff66; }
+            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 12px #00ff66; }
+            100% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 4px #00ff66; }
+        }
+
+        /* --- 3. SLICK MUSIC CONTROL WIDGET --- */
+        .music-widget {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(42, 19, 55, 0.6);
+            border: 1px solid #461e5d;
+            padding: 8px 16px;
+            border-radius: 30px;
+            margin: 10px auto;
+            max-width: 180px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+        .music-widget:hover {
+            background: rgba(42, 19, 55, 0.9);
+            border-color: #ff4d8d;
+        }
+        .music-icon {
+            font-size: 1.1rem;
+            animation: spinDisc 3s linear infinite;
+            animation-play-state: paused;
+        }
+        .music-widget.playing .music-icon {
+            animation-play-state: running;
+        }
+        .music-label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        @keyframes spinDisc {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .hero {
             text-align: center;
             padding: 20px 15px;
@@ -94,7 +185,7 @@
             padding-top: 20px;
         }
         
-        /* --- UPGRADED CHAT DISPLAY VIEW --- */
+        /* --- CHAT DISPLAY VIEW --- */
         .notes-display {
             background: #0b0210;
             max-height: 380px;
@@ -108,35 +199,31 @@
             gap: 10px;
         }
         
-        /* Chat rows to structure left or right layout */
         .chat-row {
             display: flex;
             width: 100%;
         }
-        
-        /* Sent by you (Right Side Align) */
         .chat-row.sent {
             justify-content: flex-end;
         }
-        
-        /* Received from partner (Left Side Align) */
         .chat-row.received {
             justify-content: flex-start;
         }
         
-        /* Beautiful Custom Chat Bubbles */
         .chat-bubble {
-            max-width: 80%;
-            padding: 10px 14px;
+            max-width: 82%;
+            padding: 9px 14px 6px 14px;
             border-radius: 16px;
             font-size: 0.95rem;
             line-height: 1.4;
             box-shadow: 0 2px 4px rgba(0,0,0,0.15);
             cursor: pointer;
             user-select: none;
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
         
-        /* Right Side Bubble Style (Pink theme matching your buttons) */
         .chat-row.sent .chat-bubble {
             background-color: #ff4d8d;
             color: white;
@@ -144,7 +231,6 @@
             text-align: left;
         }
         
-        /* Left Side Bubble Style (Dark Velvet Theme) */
         .chat-row.received .chat-bubble {
             background-color: #2a1337;
             color: #fff;
@@ -153,31 +239,65 @@
             text-align: left;
         }
         
-        /* Mini sender header inside bubbles */
         .chat-bubble .sender-label {
             font-size: 0.75rem;
             font-weight: bold;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             display: block;
             opacity: 0.85;
         }
         
-        /* Colored label for partner names */
         .chat-row.received .chat-bubble .sender-label {
             color: #ff4da6;
+        }
+
+        /* --- 4. MESSAGE WHATSAPP-STYLE TIMESTAMPS --- */
+        .chat-bubble .timestamp {
+            font-size: 0.68rem;
+            align-self: flex-end;
+            margin-top: 4px;
+            opacity: 0.65;
+            user-select: none;
+        }
+        .chat-row.sent .chat-bubble .timestamp {
+            color: #fff;
+        }
+        .chat-row.received .chat-bubble .timestamp {
+            color: #b19bbd;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: #888;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
 
+    <!-- Canvas element for floating hearts layer -->
+    <canvas id="heartsCanvas"></canvas>
+
     <header>
         <h1>𝐕🤍𝐑</h1>
+        <div class="status-container">
+            <div class="status-dot"></div>
+            <div class="status-text">ONLINE</div>
+        </div>
     </header>
 
     <div class="hero">
         <img src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" />
-        <h2>𝓜𝓮 𝓥 𝓪𝓷𝓭 𝓜𝔂 𝐐𝓾𝓮𝓮𝓷 𝓡 💕</h2>
+        <h2>𝓜𝓮 𝓥 𝓪𝓷𝓭 𝓜𝔂 𝐐𝓾𝓮𝐞𝓷 𝓡 💕</h2>
         <p>Welcome to our private website.<br>For my Love, Who is close to my heart to my wife, My pondaati ❤️</p>
+    </div>
+
+    <!-- Interactive Music Player Widget -->
+    <div class="music-widget" id="musicControl" onclick="toggleMusicWidget()">
+        <span class="music-icon">🎵</span>
+        <span class="music-label" id="musicStatus">Music: Off</span>
     </div>
 
     <div class="secret-box">
@@ -204,8 +324,8 @@
         </div>
     </div>
 
-    <footer> 
-          Made for us our secret thing for my Queen and Me 
+    <footer>
+        Made for us our secret thing. For my Queen and Me..... 🖤
     </footer>
 
 <script>
@@ -214,15 +334,42 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Music widget handling functions
+function toggleMusicWidget() {
+    const music = document.getElementById("bgMusic");
+    const widget = document.getElementById("musicControl");
+    const label = document.getElementById("musicStatus");
+    
+    if (music.paused) {
+        music.play().then(() => {
+            widget.classList.add("playing");
+            label.innerText = "Music: On 💖";
+        }).catch(err => console.log("Playback blocked"));
+    } else {
+        music.pause();
+        widget.classList.remove("playing");
+        label.innerText = "Music: Paused";
+    }
+}
+
 async function checkPassword(){
     const password = document.getElementById("password").value;
     if(password === "visha27112011"){
         document.getElementById("secretContent").style.display = "block";
         await loadNotes();
-        setInterval(loadNotes, 5000); // Refreshes faster now for live chat feel!
+        setInterval(loadNotes, 5000);
         
+        // Auto start music setup
         const music = document.getElementById("bgMusic");
-        if(music) music.play().catch(e => console.log("Audio playing."));
+        const widget = document.getElementById("musicControl");
+        const label = document.getElementById("musicStatus");
+        
+        music.play().then(() => {
+            widget.classList.add("playing");
+            label.innerText = "Music: On 💖";
+        }).catch(e => {
+            label.innerText = "Tap to Play Music 🎵";
+        });
     } else {
         alert("Wrong Password");
     }
@@ -235,14 +382,13 @@ async function loadNotes() {
     const { data, error } = await dbClient
         .from('messages')
         .select('*')
-        .order('id', { ascending: true }); // New messages load neatly at the bottom
+        .order('id', { ascending: true });
 
     if (error) {
         console.error("Error loading messages:", error);
         return;
     }
 
-    // Remember if user was already viewing the newest messages
     const wasAtBottom = notesSpace.scrollHeight - notesSpace.scrollTop <= notesSpace.clientHeight + 60;
 
     notesSpace.innerHTML = "";
@@ -251,33 +397,43 @@ async function loadNotes() {
         return;
     }
 
-    // Get the name currently typed in your input field
     const typedName = document.getElementById("noteAuthor").value.trim().toLowerCase();
 
     data.forEach(note => {
         const chatRow = document.createElement("div");
         const sender = note.author ? note.author.trim() : "Anonymous";
         
-        // Right side bubble if it matches your name, Left side bubble if it's from her
         if (typedName !== "" && sender.toLowerCase() === typedName) {
             chatRow.className = "chat-row sent";
         } else {
             chatRow.className = "chat-row received";
         }
         
-        // Invisible double click/tap on the bubble triggers your secret delete panel
         chatRow.ondblclick = () => deleteNote(note.id);
+        
+        // Calculate timestamp cleanly from ID or database timestamp
+        let formattedTime = "";
+        try {
+            const timeSource = note.created_at ? new Date(note.created_at) : new Date();
+            let hours = timeSource.getHours();
+            let minutes = timeSource.getMinutes();
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            formattedTime = hours + ":" + minutes;
+        } catch(e) {
+            formattedTime = "--:--";
+        }
         
         chatRow.innerHTML = `
             <div class="chat-bubble">
                 <span class="sender-label">${sender}</span>
                 <div>${note.text}</div>
+                <span class="timestamp">${formattedTime}</span>
             </div>
         `;
         notesSpace.appendChild(chatRow);
     });
 
-    // Automatically auto-scroll window down to follow the chat
     if (wasAtBottom) {
         notesSpace.scrollTop = notesSpace.scrollHeight;
     }
@@ -309,7 +465,6 @@ async function saveNote() {
             postBtn.innerText = "Post Message";
             await loadNotes();
             
-            // Force scroll down immediately when you post a message
             const notesSpace = document.getElementById("notesSpace");
             notesSpace.scrollTop = notesSpace.scrollHeight;
         }
@@ -330,6 +485,76 @@ async function deleteNote(noteId) {
         }
     }
 }
+
+// --- FLOATING HEARTS BACKGROUND ENGINE ---
+const canvas = document.getElementById("heartsCanvas");
+const ctx = canvas.getContext("2d");
+
+let totalHearts = 20;
+let heartsArray = [];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+class FloatingHeart {
+    constructor() {
+        this.reset();
+        this.y = Math.random() * canvas.height; // Spread them across screen initially
+    }
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height + 20;
+        this.size = Math.random() * 8 + 5;
+        this.speedY = Math.random() * 0.6 + 0.3;
+        this.opacity = Math.random() * 0.4 + 0.1;
+        // Random selection of pink/purple theme neon tones
+        const hueOptions = [330, 300, 280];
+        this.hue = hueOptions[Math.floor(Math.random() * hueOptions.length)];
+    }
+    update() {
+        this.y -= this.speedY;
+        if (this.y < -20) {
+            this.reset();
+        }
+    }
+    draw() {
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = `hsl(${this.hue}, 100%, 65%)`;
+        ctx.beginPath();
+        // Mathematical curve calculation to render custom vectors without external graphic dependencies
+        ctx.moveTo(this.x, this.y);
+        ctx.bezierCurveTo(this.x - this.size/2, this.y - this.size/2, this.x - this.size, this.y + this.size/3, this.x, this.y + this.size * 0.9);
+        ctx.bezierCurveTo(this.x + this.size, this.y + this.size/3, this.x + this.size/2, this.y - this.size/2, this.x, this.y);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+function initHearts() {
+    for (let i = 0; i < totalHearts; i++) {
+        heartsArray.push(new FloatingHeart());
+    }
+}
+
+function animateHearts() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < heartsArray.length; i++) {
+        heartsArray[i].update();
+        heartsArray[i].draw();
+    }
+    requestAnimationFrame(animateHearts);
+}
+
+initHearts();
+animateHearts();
 </script>
 </body>
 </html>
+        
+        
+    

@@ -195,7 +195,7 @@
     const SUPABASE_URL = "https://qawwshkvflbfvguboarm.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dhaGt2ZmliZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M"
     // Fixed database Initialization name conflict
-   const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+   const dbClient = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function checkPassword(){
       const password = document.getElementById("password").value;

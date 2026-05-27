@@ -192,24 +192,23 @@
   </footer>
 
   <script>
-    const SUPABASE_URL = "https://qawwshkvflbfvguboarm.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dhaGt2ZmliZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M"
-    // Fixed database Initialization name conflict
-   const dbClient = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL = "https://qawwahkvfibfvguboarm.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dhaGt2ZmliZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M";
+const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    async function checkPassword(){
-      const password = document.getElementById("password").value;
-      if(password === "visha27112011"){
+async function checkPassword(){
+    const password = document.getElementById("password").value;
+    if(password === "visha27112011"){
         document.getElementById("secretContent").style.display = "block";
-        loadNotes();
+        await loadNotes();
         setInterval(loadNotes, 7000);
         
         const music = document.getElementById("bgMusic");
-        music.play().catch(e => console.log("Audio placement complete."));
-      } else {
+        if(music) music.play().catch(e => console.log("Audio placement complete."));
+    } else {
         alert("Wrong Password");
-      }
     }
+}
 
     async function saveNote() {
       const authorInput = document.getElementById("noteAuthor");
@@ -223,7 +222,7 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
         postBtn.disabled = true;
         postBtn.innerText = "Sending...";
 
-        const { error } = await dbClient
+        const { error } = await dbClient 
         .from('messages')
         .insert([{ author: author, text: text }]);
 

@@ -223,22 +223,22 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
         postBtn.disabled = true;
         postBtn.innerText = "Sending...";
 
-const { error } = await dbClient
-  .from('messages')
-  .insert([{ author: author, text: text }]);
+        const { error } = await dbClient
+        .from('messages')
+        .insert([{ author: author, text: text }]);
 
-        if (error) {
-          alert("Error saving message: " + (error?.message || JSON.stringify(error)));
-
+                if (error) {
+            alert("Error saving message: " + (error?.message || JSON.stringify(error)));
         } else {
-          authorInput.value = "";
-          textInput.value = "";
-          await loadNotes();
+            authorInput.value = "";
+            textInput.value = "";
+            await loadNotes();
         }
+
         postBtn.disabled = false;
         postBtn.innerText = "Post Message";
-      }
-    }
+    }  
+}
 
     async function loadNotes() {
       const notesSpace = document.getElementById("notesSpace");

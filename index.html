@@ -197,7 +197,7 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
     // Fixed database Initialization name conflict
    const dbClient = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function checkPassword(){
+    async function checkPassword(){
       const password = document.getElementById("password").value;
       if(password === "visha27112011"){
         document.getElementById("secretContent").style.display = "block";

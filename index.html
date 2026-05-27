@@ -230,7 +230,8 @@
           .insert([{ author: author, text: text }]);
 
         if (error) {
-          alert("Error saving message, try again!");
+          alert("Error saving message: " + (error?.message || JSON.stringify(error)));
+
         } else {
           authorInput.value = "";
           textInput.value = "";

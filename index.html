@@ -191,10 +191,10 @@
     Made for us our secret thing. For my Queen and Me..... 🤍
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = "https://qawwahkvfibfvguboarm.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dhaGt2ZmliZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M";
+const SUPABASE_URL = "https://qawwshkvflbfvguboarm.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dzaGt2ZmxiZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M";
 
 const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -235,8 +235,14 @@ async function loadNotes() {
     data.forEach(note => {
         const noteDiv = document.createElement("div");
         noteDiv.className = "note-card";
-        noteDiv.style = "background:#fff; padding:10px; margin-bottom:10px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.05); color:black;";
-        noteDiv.innerHTML = `<strong>${note.author}:</strong> <p>${note.text}</p>`;
+        noteDiv.style = "background:#fff; padding:10px; margin-bottom:10px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.05); color:black; display:flex; justify-content:space-between; align-items:center;";
+        
+        noteDiv.innerHTML = `
+            <div style="flex-grow: 1;">
+                <strong>${note.author}:</strong> <p style="margin:5px 0 0 0;">${note.text}</p>
+            </div>
+            <button onclick="deleteNote(${note.id})" style="background:#ff4d4d; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:0.8rem; margin-left:10px;">Delete</button>
+        `;
         notesSpace.appendChild(noteDiv);
     });
 }
@@ -269,4 +275,22 @@ async function saveNote() {
         }
     }
 }
+
+async function deleteNote(noteId) {
+    if (confirm("Are you sure you want to delete this message?")) {
+        const { error } = await dbClient
+            .from('messages')
+            .delete()
+            .eq('id', noteId);
+
+        if (error) {
+            alert("Error deleting message: " + error.message);
+        } else {
+            await loadNotes();
+        }
+    }
+}
 </script>
+</div>
+</body>
+</html> 

@@ -191,9 +191,10 @@
     Made for us our secret thing. For my Queen and Me..... 🤍
   </footer>
 
-  <script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
 const SUPABASE_URL = "https://qawwshkvflbfvguboarm.supabase.co";
-const SUPABASE_KEY = "PASTE_THE_ANON_PUBLIC_KEY_YOU_JUST_COPIED_HERE";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dzaGt2ZmxiZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M";
 
 const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -205,74 +206,67 @@ async function checkPassword(){
         setInterval(loadNotes, 7000);
         
         const music = document.getElementById("bgMusic");
-        if(music) music.play().catch(e => console.log("Audio placement complete."));
+        if(music) music.play().catch(e => console.log("Audio playing."));
     } else {
         alert("Wrong Password");
     }
 }
 
-    async function saveNote() {
-      const authorInput = document.getElementById("noteAuthor");
-      const textInput = document.getElementById("noteText");
-      const postBtn = document.getElementById("postBtn");
-      
-      const author = authorInput.value.trim() || "Anonymous";
-      const text = textInput.value.trim();
+async function loadNotes() {
+    const notesSpace = document.getElementById("notesSpace");
+    if (!notesSpace) return;
 
-      if(text !== "") {
-        postBtn.disabled = true;
-        postBtn.innerText = "Sending...";
-
-        const { error } = await dbClient 
-        .from('messages')
-        .insert([{ author: author, text: text }]);
-
-                if (error) {
-            alert("Error saving message: " + (error?.message || JSON.stringify(error)));
-        } else {
-            authorInput.value = "";
-            textInput.value = "";
-            await loadNotes();
-        }
-
-        postBtn.disabled = false;
-        postBtn.innerText = "Post Message";
-    }  
-}
-
-    async function loadNotes() {
-      const notesSpace = document.getElementById("notesSpace");
-      
-      const { data: notes, error } = await dbClient
+    const { data, error } = await dbClient
         .from('messages')
         .select('*')
         .order('id', { ascending: false });
 
-      if (error) {
-        return; 
-      }
-
-      notesSpace.innerHTML = "";
-      
-      if(!notes || notes.length === 0) {
-        notesSpace.innerHTML = '<p style="color:#777; font-size:0.9rem; text-align:center;">No messages left yet. Be the first!</p>';
+    if (error) {
+        console.error("Error loading messages:", error);
         return;
-      }
-
-      notes.forEach(note => {
-        const div = document.createElement("div");
-        div.classList.add("saved-note");
-        div.innerHTML = `
-          <div class="author">${escapeHTML(note.author)}</div>
-          <div class="text">${escapeHTML(note.text)}</div>
-        `;
-        notesSpace.appendChild(div);
-      });
     }
 
-    function escapeHTML(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");  
+    notesSpace.innerHTML = "";
+    if (data.length === 0) {
+        notesSpace.innerHTML = "<p style='color:#777; text-align:center;'>No messages yet. Leave one below!</p>";
+        return;
     }
-  </script>
-</body>
-</html>
+
+    data.forEach(note => {
+        const noteDiv = document.createElement("div");
+        noteDiv.className = "note-card";
+        noteDiv.style = "background:#fff; padding:10px; margin-bottom:10px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.05); color:black;";
+        noteDiv.innerHTML = `<strong>${note.author}:</strong> <p>${note.text}</p>`;
+        notesSpace.appendChild(noteDiv);
+    });
+}
+
+async function saveNote() {
+    const authorInput = document.getElementById("noteAuthor");
+    const textInput = document.getElementById("noteText");
+    const postBtn = document.getElementById("postBtn");
+
+    const author = authorInput.value.trim() || "Anonymous";
+    const text = textInput.value.trim();
+
+    if (text !== "") {
+        postBtn.disabled = true;
+        postBtn.innerText = "Sending...";
+
+        const { error } = await dbClient
+            .from('messages')
+            .insert([{ author: author, text: text }]);
+
+        if (error) {
+            alert("Error saving message: " + error.message);
+            postBtn.disabled = false;
+            postBtn.innerText = "Post Message";
+        } else {
+            textInput.value = "";
+            postBtn.disabled = false;
+            postBtn.innerText = "Post Message";
+            await loadNotes();
+        }
+    }
+}
+</script>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Our Space</title>
 
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2.43.4/dist/umd/supabase.js"></script>
   <style>
     *{
       margin:0;
@@ -195,7 +195,7 @@
     const SUPABASE_URL = "https://qawwshkvflbfvguboarm.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dhaGt2ZmliZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M"
     // Fixed database Initialization name conflict
-    const dbClient = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+   const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function checkPassword(){
       const password = document.getElementById("password").value;

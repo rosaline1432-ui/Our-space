@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -240,8 +240,7 @@ const widget = document.getElementById("musicControl");
 const label = document.getElementById("musicStatus");
 const trackNameDisplay = document.getElementById("currentTrackName");
 
-// --- YOUR PERSONAL SONG PLAYLIST LIST ---
-// You can change names and URLs here to add as many songs as you want!
+// --- ALL YOUR TAMIL SONGS FIXED COMMA & TYPOS ---
 const playlist = [
     {
         title: "Aradhiya. kushi💖",
@@ -260,42 +259,41 @@ const playlist = [
         url: "https://files.catbox.moe/n32y87.mp3"
     },
     {
-        title: "Nallaru Po.....🥺"
+        title: "Nallaru Po.....🥺",
         url: "https://files.catbox.moe/4qaj0i.mp3"
     },
     {
-        title: "Neethanae.....Neethanae....🩷"
-        utl: "https://files.catbox.moe/8qrykc.mp3"
+        title: "Neethanae.....Neethanae....🩷",
+        url: "https://files.catbox.moe/8qrykc.mp3"
     },
     {
-        title: "Neeyum naanum anbe💗"
+        title: "Neeyum naanum anbe💗",
         url: "https://files.catbox.moe/fth0q7.mp3"
     },
     {
-        title: "oh penne💘"
+        title: "oh penne💘",
         url: "https://files.catbox.moe/j8nlue.mp3"
     },
     {
-        Title: "Oxygen🤍"
+        title: "Oxygen🤍",
         url: "https://files.catbox.moe/u140jk.mp3"
     },
     {
-        title: "Velica poove....❤️‍🩹"
+        title: "Velica poove....❤️‍🩹",
         url: "https://files.catbox.moe/4r721k.mp3"
     },
     {
-        title: "venmathiyae..🥺"
+        title: "venmathiyae..🥺",
         url: "https://files.catbox.moe/kq5s3n.mp3"
     },
     {
-        title: "Yendi vittu pona..🥺💔"
+        title: "Yendi vittu pona..🥺💔",
         url: "https://files.catbox.moe/9rthr7.mp3"
     }
 ];
 
 let currentTrackIndex = 0;
 
-// Initialize the first song source load
 function loadTrack(index) {
     music.src = playlist[index].url;
     trackNameDisplay.innerText = playlist[index].title;
@@ -319,9 +317,7 @@ function toggleMusicWidget() {
 }
 
 function nextSong() {
-    // Go to next song or loop back to first
     currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-    
     const wasPlaying = !music.paused;
     loadTrack(currentTrackIndex);
     
@@ -348,7 +344,6 @@ document.getElementById("password").addEventListener("keypress", function(event)
     }
 });
 
-// --- FLOATING HEARTS ANIMATION ---
 const canvas = document.getElementById("heartsCanvas");
 const ctx = canvas.getContext("2d");
 let totalHearts = 25;
@@ -384,5 +379,5 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
-
-                    
+        
+            

@@ -16,7 +16,6 @@
             color: white;
             font-family: Arial, sans-serif;
             height: 100vh;
-            height: -webkit-fill-available;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -38,7 +37,7 @@
             z-index: 1;
         }
 
-        /* --- HEADER AREA --- */
+        /* --- IMMERSIVE CHAT HEADER --- */
         header {
             background: #1c1124;
             padding: 10px 16px;
@@ -79,7 +78,7 @@
             color: #fff;
         }
 
-        /* --- STATUS GLOWS --- */
+        /* --- REAL-TIME STATUS INDICATORS --- */
         .status-container {
             display: flex;
             align-items: center;
@@ -117,7 +116,7 @@
             50% { transform: scale(1.05); opacity: 1; }
         }
 
-        /* --- MUSIC JUKEBOX --- */
+        /* --- JUKEBOX WIDGET --- */
         .playlist-container {
             display: flex;
             justify-content: center;
@@ -183,12 +182,14 @@
             padding: 3px;
         }
 
-        /* --- MAIN CHAT SYSTEM PANELS --- */
+        /* --- MAIN CONTAINER STRUCTURE --- */
         .chat-container {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
+            padding-bottom: 80px; /* Leave clean space for the absolute message bar */
         }
 
         .name-setup-bar {
@@ -219,7 +220,7 @@
 
         .messages-display {
             flex-grow: 1;
-            padding: 16px 16px 30px 16px; /* Deep bottom padding so logs scroll fully past text fields */
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -273,16 +274,19 @@
             opacity: 0.6;
         }
         
-        /* --- LOCKED TO ABSOLUTE MOBILE BOTTOM ENTRY FIELD --- */
+        /* --- LOCKED STICKY FOOTER IN VIEWBAR --- */
         .chat-input-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             background: #1c1124;
-            padding: 12px 14px 28px 14px; /* Enhanced bottom spacing safe for device system dynamic slider bars */
+            padding: 12px 14px 24px 14px;
             display: flex;
             align-items: center;
             gap: 10px;
             border-top: 1px solid #3d1c52;
-            flex-shrink: 0;
-            margin-top: auto; /* Pushes the message board bar firmly to phone base */
+            z-index: 10;
         }
         
         .chat-input-area textarea {
@@ -350,7 +354,7 @@
     <div class="chat-container">
         <div class="name-setup-bar">
             <label>Who is texting?</label>
-            <input type="text" id="noteAuthor" placeholder="Enter 'Dark King' or 'Queen'..." oninput="handleNameChange()">
+            <input type="text" id="noteAuthor" placeholder="Enter 'Dark king' or 'Queen'..." oninput="handleNameChange()">
         </div>
 
         <div class="messages-display" id="notesSpace">
@@ -371,9 +375,11 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let presenceChannel = null;
-let uniqueUserSessionToken = Math.random().toString(36).substring(7);
 
-// Jukebox Variables
+// Generate session token tied to identity to avoid tracking oneself
+let activeRole = "User";
+let uniqueUserSessionToken = "session_" + Math.random().toString(36).substring(5);
+
 const music = document.getElementById("bgMusic");
 const widget = document.getElementById("musicControl");
 const label = document.getElementById("musicStatus");
@@ -421,9 +427,10 @@ function nextSong() {
     if (wasPlaying) { music.play().then(() => { widget.classList.add("playing"); label.innerText = "Playing Music 💖"; }); }
 }
 
-// Presence Tracker & Dynamic Target Verification Engine
+// Fixed Presence Tracker Engine
 function setupRealtimePresence() {
     let rawName = document.getElementById("noteAuthor").value.trim() || "User";
+    activeRole = rawName;
 
     if(presenceChannel) {
         presenceChannel.unsubscribe();
@@ -436,50 +443,52 @@ function setupRealtimePresence() {
     presenceChannel
         .on('presence', { event: 'sync' }, () => {
             const state = presenceChannel.presenceState();
-            const sessionsList = Object.keys(state);
+            const keys = Object.keys(state);
             
             const statusBox = document.getElementById("liveStatusBox");
             const statusTxt = document.getElementById("liveStatusTxt");
-            const inputNameNormalized = document.getElementById("noteAuthor").value.trim().toLowerCase();
+            const currentNameLower = activeRole.trim().toLowerCase();
             
-            // Partner assignment logic switcher
-            let targetPartnerLabel = "partner";
-            if (inputNameNormalized.includes("queen")) {
-                targetPartnerLabel = "Dark King";
-            } else if (inputNameNormalized.includes("king") || inputNameNormalized.includes("dark")) {
-                targetPartnerLabel = "Queen";
-            } else {
-                targetPartnerLabel = "Partner";
+            // Set dynamic partner target
+            let partnerTargetLabel = "partner";
+            if (currentNameLower.includes("queen")) {
+                partnerTargetLabel = "Dark king";
+            } else if (currentNameLower.includes("king") || currentNameLower.includes("dark")) {
+                partnerTargetLabel = "Queen";
             }
 
-            // Detect if partner session is active in table state
-            let partnerIsOnline = false;
-            let partnerLastSeenTime = "";
+            let partnerFoundActive = false;
+            let partnerLastTimeSeen = "";
 
-            sessionsList.forEach(token => {
-                if (token !== uniqueUserSessionToken) {
-                    const presenceDataArray = state[token];
-                    if (presenceDataArray && presenceDataArray[0]) {
-                        partnerIsOnline = true;
-                        if (presenceDataArray[0].onlineAt) {
-                            let parsed = new Date(presenceDataArray[0].onlineAt);
-                            let h = parsed.getHours().toString().padStart(2, '0');
-                            let m = parsed.getMinutes().toString().padStart(2, '0');
-                            partnerLastSeenTime = `(last seen ${h}:${m})`;
+            // Evaluate state ignoring current self-token
+            keys.forEach(tokenKey => {
+                if (tokenKey !== uniqueUserSessionToken) {
+                    const dataPoints = state[tokenKey];
+                    if (dataPoints && dataPoints[0]) {
+                        // Confirm if session belongs to the opposite partner name
+                        let connectedName = (dataPoints[0].name || "").toLowerCase();
+                        if (connectedName !== currentNameLower) {
+                            partnerFoundActive = true;
+                            if (dataPoints[0].onlineAt) {
+                                let timeObj = new Date(dataPoints[0].onlineAt);
+                                let h = timeObj.getHours().toString().padStart(2, '0');
+                                let m = timeObj.getMinutes().toString().padStart(2, '0');
+                                partnerLastTimeSeen = `(last seen ${h}:${m})`;
+                            }
                         }
                     }
                 }
             });
 
-            if (partnerIsOnline) {
+            if (partnerFoundActive) {
                 statusBox.className = "status-container online";
-                statusTxt.innerText = `CONNECTED • ${targetPartnerLabel.toUpperCase()} IS ONLINE 😍`;
+                statusTxt.innerText = `CONNECTED • ${partnerTargetLabel.toUpperCase()} IS ONLINE 😍`;
             } else {
                 statusBox.className = "status-container waiting";
-                if (partnerLastSeenTime) {
-                    statusTxt.innerText = `waiting for ${targetPartnerLabel.toLowerCase()}... ${partnerLastSeenTime}`;
+                if (partnerLastTimeSeen) {
+                    statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}... ${partnerLastTimeSeen}`;
                 } else {
-                    statusTxt.innerText = `waiting for ${targetPartnerLabel.toLowerCase()}...`;
+                    statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}...`;
                 }
             }
         })
@@ -494,6 +503,7 @@ function handleNameChange() {
     loadNotes();
     if (presenceChannel) {
         let currentUserName = document.getElementById("noteAuthor").value.trim() || "User";
+        activeRole = currentUserName;
         presenceChannel.track({ name: currentUserName, onlineAt: new Date().toISOString() });
     }
 }
@@ -602,7 +612,7 @@ window.onload = () => {
     setInterval(loadNotes, 4000);
 };
 
-// --- FLOATING BACKGROUND HEARTS ---
+// --- BACKGROUND HEARTS ---
 const canvas = document.getElementById("heartsCanvas");
 const ctx = canvas.getContext("2d");
 let totalHearts = 12;
@@ -638,3 +648,4 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
+   

@@ -1,8 +1,8 @@
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Our Secret Chatroom 💌</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -16,14 +16,13 @@
             color: white;
             font-family: Arial, sans-serif;
             height: 100vh;
-            height: -webkit-fill-available; /* Fixed mobile viewport calculation */
+            height: -webkit-fill-available;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
         }
         
-        /* --- FLOATING HEARTS BACKGROUND --- */
         #heartsCanvas {
             position: fixed;
             top: 0;
@@ -39,7 +38,7 @@
             z-index: 1;
         }
 
-        /* --- IMMERSIVE CHAT HEADER --- */
+        /* --- HEADER AREA --- */
         header {
             background: #1c1124;
             padding: 10px 16px;
@@ -80,7 +79,7 @@
             color: #fff;
         }
 
-        /* --- REAL-TIME STATUS & LAST SEEN ENGINE --- */
+        /* --- STATUS GLOWS --- */
         .status-container {
             display: flex;
             align-items: center;
@@ -118,7 +117,7 @@
             50% { transform: scale(1.05); opacity: 1; }
         }
 
-        /* --- JUKEBOX MUSIC WIDGET --- */
+        /* --- MUSIC JUKEBOX --- */
         .playlist-container {
             display: flex;
             justify-content: center;
@@ -183,17 +182,13 @@
             cursor: pointer;
             padding: 3px;
         }
-        @keyframes spinDisc {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
 
-        /* --- STABLE CHAT WORKSPACE SCROLL SYSTEM --- */
+        /* --- MAIN CHAT SYSTEM PANELS --- */
         .chat-container {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Stops the overall layout from breaking */
+            overflow: hidden;
         }
 
         .name-setup-bar {
@@ -224,12 +219,13 @@
 
         .messages-display {
             flex-grow: 1;
-            padding: 16px;
-            overflow-y: auto; /* Force scroll bar only within this section */
+            padding: 16px 16px 30px 16px; /* Deep bottom padding so logs scroll fully past text fields */
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 12px;
             background: transparent;
+            -webkit-overflow-scrolling: touch;
         }
 
         .chat-row {
@@ -277,28 +273,28 @@
             opacity: 0.6;
         }
         
-        /* --- BOTTOM INPUT CONTROL PANEL (LOCKED IN VIEW) --- */
+        /* --- LOCKED TO ABSOLUTE MOBILE BOTTOM ENTRY FIELD --- */
         .chat-input-area {
             background: #1c1124;
-            padding: 10px 12px;
+            padding: 12px 14px 28px 14px; /* Enhanced bottom spacing safe for device system dynamic slider bars */
             display: flex;
             align-items: center;
             gap: 10px;
             border-top: 1px solid #3d1c52;
-            flex-shrink: 0; /* Ensures container never falls off viewports */
-            margin-bottom: env(safe-area-inset-bottom, 0px);
+            flex-shrink: 0;
+            margin-top: auto; /* Pushes the message board bar firmly to phone base */
         }
         
         .chat-input-area textarea {
             flex-grow: 1;
             background: #0b0210;
             border: 1px solid #461e5d;
-            border-radius: 20px;
-            padding: 10px 16px;
+            border-radius: 22px;
+            padding: 11px 16px;
             color: white;
             font-size: 0.95rem;
             resize: none;
-            height: 40px;
+            height: 42px;
             outline: none;
             line-height: 1.2;
         }
@@ -307,8 +303,8 @@
             background: #ff4d8d;
             color: white;
             border: none;
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             font-size: 1.2rem;
             cursor: pointer;
@@ -377,10 +373,7 @@ const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let presenceChannel = null;
 let uniqueUserSessionToken = Math.random().toString(36).substring(7);
 
-// Track locally cached backup timestamp for custom fallback last seen state
-let alternateLastSeen = null;
-
-// Jukebox Setup
+// Jukebox Variables
 const music = document.getElementById("bgMusic");
 const widget = document.getElementById("musicControl");
 const label = document.getElementById("musicStatus");
@@ -428,7 +421,7 @@ function nextSong() {
     if (wasPlaying) { music.play().then(() => { widget.classList.add("playing"); label.innerText = "Playing Music 💖"; }); }
 }
 
-// Presence Tracker & Dynamic Last Seen Engine
+// Presence Tracker & Dynamic Target Verification Engine
 function setupRealtimePresence() {
     let rawName = document.getElementById("noteAuthor").value.trim() || "User";
 
@@ -443,41 +436,51 @@ function setupRealtimePresence() {
     presenceChannel
         .on('presence', { event: 'sync' }, () => {
             const state = presenceChannel.presenceState();
-            const onlineCount = Object.keys(state).length;
+            const sessionsList = Object.keys(state);
             
             const statusBox = document.getElementById("liveStatusBox");
             const statusTxt = document.getElementById("liveStatusTxt");
-            const currentName = document.getElementById("noteAuthor").value.trim().toLowerCase();
+            const inputNameNormalized = document.getElementById("noteAuthor").value.trim().toLowerCase();
             
-            let partnerName = currentName.includes("queen") ? "dark king" : "queen";
-
-            if (onlineCount >= 2) {
-                statusBox.className = "status-container online";
-                statusTxt.innerText = "CONNECTED • BOTH ONLINE 😍";
-                alternateLastSeen = new Date(); // Update active memory marker
+            // Partner assignment logic switcher
+            let targetPartnerLabel = "partner";
+            if (inputNameNormalized.includes("queen")) {
+                targetPartnerLabel = "Dark King";
+            } else if (inputNameNormalized.includes("king") || inputNameNormalized.includes("dark")) {
+                targetPartnerLabel = "Queen";
             } else {
-                statusBox.className = "status-container waiting";
-                
-                // Read state metadata timestamps safely
-                let dynamicTimeStr = "";
-                for (let session in state) {
-                    let userPresence = state[session];
-                    if (userPresence && userPresence[0] && userPresence[0].onlineAt) {
-                        let parsedTime = new Date(userPresence[0].onlineAt);
-                        let h = parsedTime.getHours().toString().padStart(2, '0');
-                        let m = parsedTime.getMinutes().toString().padStart(2, '0');
-                        dynamicTimeStr = ` (last seen ${h}:${m})`;
+                targetPartnerLabel = "Partner";
+            }
+
+            // Detect if partner session is active in table state
+            let partnerIsOnline = false;
+            let partnerLastSeenTime = "";
+
+            sessionsList.forEach(token => {
+                if (token !== uniqueUserSessionToken) {
+                    const presenceDataArray = state[token];
+                    if (presenceDataArray && presenceDataArray[0]) {
+                        partnerIsOnline = true;
+                        if (presenceDataArray[0].onlineAt) {
+                            let parsed = new Date(presenceDataArray[0].onlineAt);
+                            let h = parsed.getHours().toString().padStart(2, '0');
+                            let m = parsed.getMinutes().toString().padStart(2, '0');
+                            partnerLastSeenTime = `(last seen ${h}:${m})`;
+                        }
                     }
                 }
+            });
 
-                // Fallback marker tracking system
-                if(!dynamicTimeStr && alternateLastSeen) {
-                    let h = alternateLastSeen.getHours().toString().padStart(2, '0');
-                    let m = alternateLastSeen.getMinutes().toString().padStart(2, '0');
-                    dynamicTimeStr = ` (last seen ${h}:${m})`;
+            if (partnerIsOnline) {
+                statusBox.className = "status-container online";
+                statusTxt.innerText = `CONNECTED • ${targetPartnerLabel.toUpperCase()} IS ONLINE 😍`;
+            } else {
+                statusBox.className = "status-container waiting";
+                if (partnerLastSeenTime) {
+                    statusTxt.innerText = `waiting for ${targetPartnerLabel.toLowerCase()}... ${partnerLastSeenTime}`;
+                } else {
+                    statusTxt.innerText = `waiting for ${targetPartnerLabel.toLowerCase()}...`;
                 }
-
-                statusTxt.innerText = `waiting for ${partnerName}...${dynamicTimeStr}`;
             }
         })
         .subscribe(async (status) => {
@@ -506,7 +509,7 @@ async function loadNotes() {
 
     if (error) return;
 
-    const wasAtBottom = notesSpace.scrollHeight - notesSpace.scrollTop <= notesSpace.clientHeight + 120;
+    const wasAtBottom = notesSpace.scrollHeight - notesSpace.scrollTop <= notesSpace.clientHeight + 150;
     notesSpace.innerHTML = "";
     
     if (data.length === 0) {
@@ -568,7 +571,7 @@ async function saveNote() {
             .insert([{ author: author, text: text }]);
 
         if (error) {
-            alert("Failed to sync log: " + error.message);
+            alert("Failed to sync: " + error.message);
             postBtn.disabled = false;
         } else {
             textInput.value = "";
@@ -599,7 +602,7 @@ window.onload = () => {
     setInterval(loadNotes, 4000);
 };
 
-// --- FLOATING HEARTS ---
+// --- FLOATING BACKGROUND HEARTS ---
 const canvas = document.getElementById("heartsCanvas");
 const ctx = canvas.getContext("2d");
 let totalHearts = 12;
@@ -635,4 +638,3 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
-                             

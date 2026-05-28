@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -379,7 +379,6 @@ let presenceChannel = null;
 let activeRole = "User";
 let uniqueUserSessionToken = "session_" + Math.random().toString(36).substring(5);
 let latestGlobalPresenceState = {};
-let fallbackPartnerTimestamp = "";
 
 const music = document.getElementById("bgMusic");
 const widget = document.getElementById("musicControl");
@@ -428,24 +427,34 @@ function nextSong() {
     if (wasPlaying) { music.play().then(() => { widget.classList.add("playing"); label.innerText = "Playing Music 💖"; }); }
 }
 
-async function findPartnerLastSeenFromMessages(partnerKeyword) {
-    if (!partnerKeyword) return;
+// --- NEW CRITICAL USER STATUS DB WRITER ---
+async function updateUserActivityInDB() {
+    let cleanName = (document.getElementById("noteAuthor").value || "").trim();
+    if (!cleanName || cleanName.toLowerCase() === "user" || cleanName.toLowerCase() === "anonymous") return;
 
+    // Save accurate time to the database user_status table
+    await dbClient
+        .from('user_status')
+        .upsert({ username: cleanName.toLowerCase(), last_seen: new Date().toISOString() }, { onConflict: 'username' });
+}
+
+// --- NEW LAST SEEN DATABASE FETCH LOOKUP ---
+async function fetchPartnerLastSeenFromDB(partnerKeyword) {
+    if (!partnerKeyword) return "";
+    
     const { data, error } = await dbClient
-        .from('messages')
-        .select('created_at, author')
-        .ilike('author', `%${partnerKeyword}%`)
-        .order('id', { ascending: false })
-        .limit(1);
+        .from('user_status')
+        .select('last_seen')
+        .eq('username', partnerKeyword.toLowerCase())
+        .single();
 
-    if (!error && data && data.length > 0) {
-        let timeObj = new Date(data[0].created_at);
+    if (!error && data && data.last_seen) {
+        let timeObj = new Date(data.last_seen);
         let h = timeObj.getHours().toString().padStart(2, '0');
         let m = timeObj.getMinutes().toString().padStart(2, '0');
-        fallbackPartnerTimestamp = `(last seen ${h}:${m})`;
-    } else {
-        fallbackPartnerTimestamp = "";
+        return `(last seen ${h}:${m})`;
     }
+    return "";
 }
 
 async function renderPresenceUI() {
@@ -466,15 +475,13 @@ async function renderPresenceUI() {
     }
 
     let partnerFoundActive = false;
-    let presenceLastSeenTime = "";
-
     const keys = Object.keys(latestGlobalPresenceState);
 
     keys.forEach(tokenKey => {
         if (tokenKey !== uniqueUserSessionToken) {
             const dataPoints = latestGlobalPresenceState[tokenKey];
             if (dataPoints && dataPoints[0]) {
-                let connectedName = (dataPoints[0].name || "").toLowerCase();
+                let connectedName = (dataPoints[0].name || "").trim().toLowerCase();
                 
                 if (currentNameLower.includes("queen") && connectedName.includes("king")) {
                     partnerFoundActive = true;
@@ -482,13 +489,6 @@ async function renderPresenceUI() {
                     partnerFoundActive = true;
                 } else if (!currentNameLower.includes("king") && !currentNameLower.includes("queen") && connectedName !== currentNameLower && connectedName !== "") {
                     partnerFoundActive = true;
-                }
-
-                if (dataPoints[0].onlineAt) {
-                    let timeObj = new Date(dataPoints[0].onlineAt);
-                    let h = timeObj.getHours().toString().padStart(2, '0');
-                    let m = timeObj.getMinutes().toString().padStart(2, '0');
-                    presenceLastSeenTime = `(last seen ${h}:${m})`;
                 }
             }
         }
@@ -500,13 +500,14 @@ async function renderPresenceUI() {
     } else {
         statusBox.className = "status-container waiting";
         
-        if (!presenceLastSeenTime && searchKeyWord !== "") {
-            await findPartnerLastSeenFromMessages(searchKeyWord);
-            presenceLastSeenTime = fallbackPartnerTimestamp;
+        // Fetch real status directly from database
+        let dbLastSeenTime = "";
+        if (searchKeyWord !== "") {
+            dbLastSeenTime = await fetchPartnerLastSeenFromDB(searchKeyWord);
         }
 
-        if (presenceLastSeenTime) {
-            statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}... ${presenceLastSeenTime}`;
+        if (dbLastSeenTime) {
+            statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}... ${dbLastSeenTime}`;
         } else {
             statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}...`;
         }
@@ -533,6 +534,7 @@ function setupRealtimePresence() {
         .subscribe(async (status) => {
             if (status === 'SUBSCRIBED') {
                 await presenceChannel.track({ name: rawName, onlineAt: new Date().toISOString() });
+                await updateUserActivityInDB();
             }
         });
 }
@@ -543,6 +545,7 @@ function handleNameChange() {
     
     renderPresenceUI();
     loadNotes();
+    updateUserActivityInDB();
 
     if (presenceChannel && presenceChannel.state === 'joined') {
         presenceChannel.track({ name: currentUserName, onlineAt: new Date().toISOString() });
@@ -628,6 +631,7 @@ async function saveNote() {
             textInput.value = "";
             postBtn.disabled = false;
             await loadNotes();
+            await updateUserActivityInDB();
             notesSpace.scrollTop = notesSpace.scrollHeight;
         }
     }
@@ -651,10 +655,13 @@ window.onload = () => {
     setupRealtimePresence();
     loadNotes();
     
+    // Smooth loops to update database active timestamps continuously
     setInterval(loadNotes, 4000);
-    setInterval(renderPresenceUI, 5000);
+    setInterval(renderPresenceUI, 4000);
+    setInterval(updateUserActivityInDB, 10000); 
 };
 
+// --- BACKGROUND HEARTS ---
 const canvas = document.getElementById("heartsCanvas");
 const ctx = canvas.getContext("2d");
 let totalHearts = 12;
@@ -690,7 +697,10 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
-
+      
+        
+            
+        
         
         
             

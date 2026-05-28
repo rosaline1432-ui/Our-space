@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -196,24 +196,43 @@
             background: #251433;
             padding: 8px 12px;
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            gap: 8px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
             flex-shrink: 0;
         }
+        .name-inputs-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
         .name-setup-bar label {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #ff4da6;
             font-weight: bold;
-            white-space: nowrap;
+            margin-bottom: 3px;
         }
         .name-setup-bar input {
-            flex-grow: 1;
+            width: 100%;
             padding: 6px 10px;
             border-radius: 6px;
             border: none;
             background: rgba(255,255,255,0.1);
             color: white;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        .gender-select {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            padding: 6px;
+            border-radius: 6px;
             font-size: 0.85rem;
             outline: none;
         }
@@ -353,8 +372,23 @@
 
     <div class="chat-container">
         <div class="name-setup-bar">
-            <label>Who is texting?</label>
-            <input type="text" id="noteAuthor" placeholder="Enter 'King' or 'Queen'..." oninput="handleNameChange()">
+            <div class="name-inputs-row">
+                <div class="input-group">
+                    <label>Your Name</label>
+                    <input type="text" id="noteAuthor" placeholder="Your name..." oninput="handleNameChange()">
+                </div>
+                <div class="input-group">
+                    <label>Partner's Name</label>
+                    <input type="text" id="partnerName" placeholder="Partner's name..." oninput="handleNameChange()">
+                </div>
+                <div class="input-group" style="flex: 0.6;">
+                    <label>I am a</label>
+                    <select id="userGender" class="gender-select" onchange="handleNameChange()">
+                        <option value="boy">Boy 👦</option>
+                        <option value="girl">Girl 👧</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div class="messages-display" id="notesSpace">
@@ -427,25 +461,37 @@ function nextSong() {
     if (wasPlaying) { music.play().then(() => { widget.classList.add("playing"); label.innerText = "Playing Music 💖"; }); }
 }
 
-// --- NEW CRITICAL USER STATUS DB WRITER ---
-async function updateUserActivityInDB() {
-    let cleanName = (document.getElementById("noteAuthor").value || "").trim();
-    if (!cleanName || cleanName.toLowerCase() === "user" || cleanName.toLowerCase() === "anonymous") return;
-
-    // Save accurate time to the database user_status table
-    await dbClient
-        .from('user_status')
-        .upsert({ username: cleanName.toLowerCase(), last_seen: new Date().toISOString() }, { onConflict: 'username' });
+// Save inputs to localStorage so users don't have to retype them every time
+function saveCredentialsToCache() {
+    localStorage.setItem("chat_my_name", document.getElementById("noteAuthor").value.trim());
+    localStorage.setItem("chat_partner_name", document.getElementById("partnerName").value.trim());
+    localStorage.setItem("chat_gender", document.getElementById("userGender").value);
 }
 
-// --- NEW LAST SEEN DATABASE FETCH LOOKUP ---
-async function fetchPartnerLastSeenFromDB(partnerKeyword) {
-    if (!partnerKeyword) return "";
+function loadCredentialsFromCache() {
+    if(localStorage.getItem("chat_my_name")) document.getElementById("noteAuthor").value = localStorage.getItem("chat_my_name");
+    if(localStorage.getItem("chat_partner_name")) document.getElementById("partnerName").value = localStorage.getItem("chat_partner_name");
+    if(localStorage.getItem("chat_gender")) document.getElementById("userGender").value = localStorage.getItem("chat_gender");
+}
+
+// Updates row status in database user_status table
+async function updateUserActivityInDB() {
+    let cleanName = (document.getElementById("noteAuthor").value || "").trim().toLowerCase();
+    if (!cleanName || cleanName === "user" || cleanName === "anonymous") return;
+
+    await dbClient
+        .from('user_status')
+        .upsert({ username: cleanName, last_seen: new Date().toISOString() }, { onConflict: 'username' });
+}
+
+// Fetches last seen directly from database
+async function fetchPartnerLastSeenFromDB(partnerNameClean) {
+    if (!partnerNameClean) return "";
     
     const { data, error } = await dbClient
         .from('user_status')
         .select('last_seen')
-        .eq('username', partnerKeyword.toLowerCase())
+        .eq('username', partnerNameClean.toLowerCase())
         .single();
 
     if (!error && data && data.last_seen) {
@@ -463,16 +509,9 @@ async function renderPresenceUI() {
     if (!statusBox || !statusTxt) return;
 
     const currentNameLower = activeRole.trim().toLowerCase();
+    const partnerNameInput = (document.getElementById("partnerName").value || "").trim().toLowerCase();
     
-    let partnerTargetLabel = "partner";
-    let searchKeyWord = "";
-    if (currentNameLower.includes("queen")) {
-        partnerTargetLabel = "King";
-        searchKeyWord = "king";
-    } else if (currentNameLower.includes("king")) {
-        partnerTargetLabel = "Queen";
-        searchKeyWord = "queen";
-    }
+    let displayPartnerLabel = partnerNameInput ? partnerNameInput : "partner";
 
     let partnerFoundActive = false;
     const keys = Object.keys(latestGlobalPresenceState);
@@ -482,12 +521,12 @@ async function renderPresenceUI() {
             const dataPoints = latestGlobalPresenceState[tokenKey];
             if (dataPoints && dataPoints[0]) {
                 let connectedName = (dataPoints[0].name || "").trim().toLowerCase();
-                
-                if (currentNameLower.includes("queen") && connectedName.includes("king")) {
+                let connectedPartnerOfThatUser = (dataPoints[0].targetingPartner || "").trim().toLowerCase();
+
+                // Connects if they match names explicitly, or cross-target each other
+                if (partnerNameInput !== "" && connectedName === partnerNameInput) {
                     partnerFoundActive = true;
-                } else if (currentNameLower.includes("king") && connectedName.includes("queen")) {
-                    partnerFoundActive = true;
-                } else if (!currentNameLower.includes("king") && !currentNameLower.includes("queen") && connectedName !== currentNameLower && connectedName !== "") {
+                } else if (connectedPartnerOfThatUser === currentNameLower && currentNameLower !== "user") {
                     partnerFoundActive = true;
                 }
             }
@@ -496,26 +535,26 @@ async function renderPresenceUI() {
 
     if (partnerFoundActive) {
         statusBox.className = "status-container online";
-        statusTxt.innerText = `CONNECTED • ${partnerTargetLabel.toUpperCase()} IS ONLINE 😍`;
+        statusTxt.innerText = `CONNECTED • ${displayPartnerLabel.toUpperCase()} IS ONLINE 😍`;
     } else {
         statusBox.className = "status-container waiting";
         
-        // Fetch real status directly from database
         let dbLastSeenTime = "";
-        if (searchKeyWord !== "") {
-            dbLastSeenTime = await fetchPartnerLastSeenFromDB(searchKeyWord);
+        if (partnerNameInput !== "") {
+            dbLastSeenTime = await fetchPartnerLastSeenFromDB(partnerNameInput);
         }
 
         if (dbLastSeenTime) {
-            statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}... ${dbLastSeenTime}`;
+            statusTxt.innerText = `waiting for ${displayPartnerLabel}... ${dbLastSeenTime}`;
         } else {
-            statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}...`;
+            statusTxt.innerText = `waiting for ${displayPartnerLabel}...`;
         }
     }
 }
 
 function setupRealtimePresence() {
     let rawName = document.getElementById("noteAuthor").value.trim() || "User";
+    let targetPartner = document.getElementById("partnerName").value.trim() || "";
     activeRole = rawName;
 
     if (presenceChannel) {
@@ -533,7 +572,7 @@ function setupRealtimePresence() {
         })
         .subscribe(async (status) => {
             if (status === 'SUBSCRIBED') {
-                await presenceChannel.track({ name: rawName, onlineAt: new Date().toISOString() });
+                await presenceChannel.track({ name: rawName, targetingPartner: targetPartner, onlineAt: new Date().toISOString() });
                 await updateUserActivityInDB();
             }
         });
@@ -541,14 +580,16 @@ function setupRealtimePresence() {
 
 function handleNameChange() {
     let currentUserName = document.getElementById("noteAuthor").value.trim() || "User";
+    let targetPartner = document.getElementById("partnerName").value.trim() || "";
     activeRole = currentUserName;
     
+    saveCredentialsToCache();
     renderPresenceUI();
     loadNotes();
     updateUserActivityInDB();
 
     if (presenceChannel && presenceChannel.state === 'joined') {
-        presenceChannel.track({ name: currentUserName, onlineAt: new Date().toISOString() });
+        presenceChannel.track({ name: currentUserName, targetingPartner: targetPartner, onlineAt: new Date().toISOString() });
     }
 }
 
@@ -652,10 +693,10 @@ document.getElementById("noteText").addEventListener("keypress", function(e) {
 });
 
 window.onload = () => {
+    loadCredentialsFromCache();
     setupRealtimePresence();
     loadNotes();
     
-    // Smooth loops to update database active timestamps continuously
     setInterval(loadNotes, 4000);
     setInterval(renderPresenceUI, 4000);
     setInterval(updateUserActivityInDB, 10000); 
@@ -697,13 +738,6 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
-      
-        
-            
-        
-        
-        
-            
-    
+ 
                 
-    
+                        

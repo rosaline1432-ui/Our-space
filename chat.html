@@ -182,7 +182,7 @@
             padding: 3px;
         }
 
-        /* --- MAIN CONTAINER STRUCTURE --- */
+        /* --- CHAT VIEWPORT CONTAINER --- */
         .chat-container {
             flex-grow: 1;
             display: flex;
@@ -274,7 +274,7 @@
             opacity: 0.6;
         }
         
-        /* --- PROTECTED SAFE ENTRY FOOTER --- */
+        /* --- BOTTOM INPUT ENTRY DOCK --- */
         .chat-input-area {
             position: fixed;
             bottom: 0;
@@ -392,7 +392,7 @@ const playlist = [
     { title: "Kannadi poove👀", url: "https://files.catbox.moe/kfv1no.mp3" },
     { title: "Naan aval illai💌", url: "https://files.catbox.moe/n32y87.mp3" },
     { title: "Nallaru Po.....🥺", url: "https://files.catbox.moe/4qaj0i.mp3" },
-    { title: "Neethanae.....Neethanae....🩷", url: "https://files.catbox.moe/8qrykc.mp3" },
+    { title: "Neethanae.....Neethanae....💖", url: "https://files.catbox.moe/8qrykc.mp3" },
     { title: "Neeyum naanum anbe💗", url: "https://files.catbox.moe/fth0q7.mp3" },
     { title: "oh penne💘", url: "https://files.catbox.moe/j8nlue.mp3" },
     { title: "Oxygen🤍", url: "https://files.catbox.moe/u140jk.mp3" },
@@ -428,11 +428,9 @@ function nextSong() {
     if (wasPlaying) { music.play().then(() => { widget.classList.add("playing"); label.innerText = "Playing Music 💖"; }); }
 }
 
-// --- HTML APPROACH: EXTRACT PARTNER LAST TIME FROM CHAT LOGS ---
 async function findPartnerLastSeenFromMessages(partnerKeyword) {
     if (!partnerKeyword) return;
 
-    // We scan the regular chat table for the latest message sent by your partner
     const { data, error } = await dbClient
         .from('messages')
         .select('created_at, author')
@@ -450,7 +448,6 @@ async function findPartnerLastSeenFromMessages(partnerKeyword) {
     }
 }
 
-// --- DYNAMIC UI RENDER ---
 async function renderPresenceUI() {
     const statusBox = document.getElementById("liveStatusBox");
     const statusTxt = document.getElementById("liveStatusTxt");
@@ -503,7 +500,6 @@ async function renderPresenceUI() {
     } else {
         statusBox.className = "status-container waiting";
         
-        // Pure HTML workaround fallback: check chat log history
         if (!presenceLastSeenTime && searchKeyWord !== "") {
             await findPartnerLastSeenFromMessages(searchKeyWord);
             presenceLastSeenTime = fallbackPartnerTimestamp;
@@ -659,7 +655,6 @@ window.onload = () => {
     setInterval(renderPresenceUI, 5000);
 };
 
-// --- BACKGROUND HEARTS ---
 const canvas = document.getElementById("heartsCanvas");
 const ctx = canvas.getContext("2d");
 let totalHearts = 12;
@@ -696,7 +691,9 @@ initHearts(); animateHearts();
 </body>
 </html>
 
+        
+        
             
-                       
-
+    
                 
+    

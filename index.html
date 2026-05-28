@@ -22,7 +22,6 @@
             overflow: hidden;
         }
         
-        /* --- FLOATING HEARTS BACKGROUND CANVAS --- */
         #heartsCanvas {
             position: fixed;
             top: 0;
@@ -78,28 +77,35 @@
             line-height: 1.4;
         }
 
-        /* --- AUDIO CONTROLLER WIDGET --- */
+        /* --- PLAYLIST JUKEBOX WIDGET --- */
         .music-widget {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background: rgba(42, 19, 55, 0.6);
+            justify-content: space-between;
+            gap: 15px;
+            background: rgba(42, 19, 55, 0.7);
             border: 1px solid #461e5d;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border-radius: 30px;
             margin-bottom: 25px;
-            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 340px;
             transition: 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
         .music-widget:hover {
-            background: rgba(42, 19, 55, 0.9);
             border-color: #ff4d8d;
-            transform: scale(1.02);
+            background: rgba(42, 19, 55, 0.9);
+        }
+        .music-clickable-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            flex-grow: 1;
         }
         .music-icon {
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             display: inline-block;
             animation: spinDisc 3s linear infinite;
             animation-play-state: paused;
@@ -107,10 +113,34 @@
         .music-widget.playing .music-icon {
             animation-play-state: running;
         }
+        .music-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
         .music-label {
             font-size: 0.85rem;
             font-weight: bold;
             color: #fff;
+        }
+        .song-title {
+            font-size: 0.75rem;
+            color: #ff4da6;
+            margin-top: 2px;
+            font-style: italic;
+        }
+        .next-song-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            transition: 0.2s;
+        }
+        .next-song-btn:hover {
+            color: #ff4d8d;
+            transform: scale(1.1);
         }
         @keyframes spinDisc {
             0% { transform: rotate(0deg); }
@@ -179,22 +209,26 @@
             <p>Welcome to our private website.<br>For my Love, Who is close to my heart to my wife, My pondaati ❤️</p>
         </div>
 
-        <div class="music-widget" id="musicControl" onclick="toggleMusicWidget()">
-            <span class="music-icon">🎵</span>
-            <span class="music-label" id="musicStatus">Tap to Play Music 🎧</span>
+        <div class="music-widget" id="musicControl">
+            <div class="music-clickable-area" onclick="toggleMusicWidget()">
+                <span class="music-icon" id="discIcon">🎵</span>
+                <div class="music-info">
+                    <span class="music-label" id="musicStatus">Tap to Play Music 🎧</span>
+                    <span class="song-title" id="currentTrackName">Song 1</span>
+                </div>
+            </div>
+            <button class="next-song-btn" onclick="nextSong()" title="Next Song">⏭️</button>
         </div>
 
         <div class="secret-box">
             <h3><strong>ℙ𝕣𝕚𝕧𝕒𝕥𝕖 𝕒𝕣𝕖𝕒👀</strong></h3>
             <p style="font-style: italic; color: #aaa; margin-bottom: 15px; font-size: 0.9rem;">"Welcome to our dream Romantic and fantasy World."</p>
-            <input type="password" id="password" placeholder="Enter Password" id="passInput">
+            <input type="password" id="password" placeholder="Enter Password">
             <button id="enterBtn" onclick="checkPassword()">Enter Room</button>
         </div>
     </div>
 
-    <audio id="bgMusic" loop preload="auto">
-        <source src="https://files.catbox.moe/ryip47.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="bgMusic" loop preload="auto" crossorigin="anonymous"></audio>
 
     <footer>
         Made for us our secret thing. For my Queen and Me..... 🖤
@@ -204,13 +238,79 @@
 const music = document.getElementById("bgMusic");
 const widget = document.getElementById("musicControl");
 const label = document.getElementById("musicStatus");
+const trackNameDisplay = document.getElementById("currentTrackName");
+
+// --- YOUR PERSONAL SONG PLAYLIST LIST ---
+// You can change names and URLs here to add as many songs as you want!
+const playlist = [
+    {
+        title: "Aradhiya. kushi💖",
+        url: "https://files.catbox.moe/w3v3hb.mp3"
+    },
+    {
+        title: "Innum konjam neram🖤",
+        url: "https://files.catbox.moe/tq918f.mp3"
+    },
+    {
+        title: "Kannadi poove👀",
+        url: "https://files.catbox.moe/kfv1no.mp3"
+    },
+    {
+        title: "Naan aval illai💌",
+        url: "https://files.catbox.moe/n32y87.mp3"
+    },
+    {
+        title: "Nallaru Po.....🥺"
+        url: "https://files.catbox.moe/4qaj0i.mp3"
+    },
+    {
+        title: "Neethanae.....Neethanae....🩷"
+        utl: "https://files.catbox.moe/8qrykc.mp3"
+    },
+    {
+        title: "Neeyum naanum anbe💗"
+        url: "https://files.catbox.moe/fth0q7.mp3"
+    },
+    {
+        title: "oh penne💘"
+        url: "https://files.catbox.moe/j8nlue.mp3"
+    },
+    {
+        Title: "Oxygen🤍"
+        url: "https://files.catbox.moe/u140jk.mp3"
+    },
+    {
+        title: "Velica poove....❤️‍🩹"
+        url: "https://files.catbox.moe/4r721k.mp3"
+    },
+    {
+        title: "venmathiyae..🥺"
+        url: "https://files.catbox.moe/kq5s3n.mp3"
+    },
+    {
+        title: "Yendi vittu pona..🥺💔"
+        url: "https://files.catbox.moe/9rthr7.mp3"
+    }
+];
+
+let currentTrackIndex = 0;
+
+// Initialize the first song source load
+function loadTrack(index) {
+    music.src = playlist[index].url;
+    trackNameDisplay.innerText = playlist[index].title;
+}
+loadTrack(currentTrackIndex);
 
 function toggleMusicWidget() {
     if (music.paused) {
         music.play().then(() => {
             widget.classList.add("playing");
             label.innerText = "Playing Music 💖";
-        }).catch(err => { label.innerText = "Error: Tap again 🎧"; });
+        }).catch(err => { 
+            label.innerText = "Error: Tap again 🎧"; 
+            console.error(err);
+        });
     } else {
         music.pause();
         widget.classList.remove("playing");
@@ -218,17 +318,30 @@ function toggleMusicWidget() {
     }
 }
 
+function nextSong() {
+    // Go to next song or loop back to first
+    currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+    
+    const wasPlaying = !music.paused;
+    loadTrack(currentTrackIndex);
+    
+    if (wasPlaying) {
+        music.play().then(() => {
+            widget.classList.add("playing");
+            label.innerText = "Playing Music 💖";
+        });
+    }
+}
+
 function checkPassword(){
     const password = document.getElementById("password").value;
     if(password === "visha27112011"){
-        // Redirects smoothly to our brand new chat room page file!
         window.location.href = "chat.html";
     } else {
         alert("Wrong Password");
     }
 }
 
-// Add enter key support for password field
 document.getElementById("password").addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         checkPassword();
@@ -272,4 +385,4 @@ initHearts(); animateHearts();
 </body>
 </html>
 
-                        
+                    

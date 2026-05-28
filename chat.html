@@ -189,7 +189,7 @@
             flex-direction: column;
             overflow: hidden;
             position: relative;
-            padding-bottom: 80px; /* Leave clean space for the absolute message bar */
+            margin-bottom: 85px; /* Creates protected space above fixed text entry bar */
         }
 
         .name-setup-bar {
@@ -274,19 +274,19 @@
             opacity: 0.6;
         }
         
-        /* --- LOCKED STICKY FOOTER IN VIEWBAR --- */
+        /* --- FIXED BOTTOM POSITIONING TO SAFELY CLEAR MOBILE OS BUTTONS --- */
         .chat-input-area {
-            position: absolute;
+            position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
             background: #1c1124;
-            padding: 12px 14px 24px 14px;
+            padding: 10px 14px calc(14px + env(safe-area-inset-bottom)); /* Dynamic extra room for phone navigation keys */
             display: flex;
             align-items: center;
             gap: 10px;
             border-top: 1px solid #3d1c52;
-            z-index: 10;
+            z-index: 999;
         }
         
         .chat-input-area textarea {
@@ -376,7 +376,6 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let presenceChannel = null;
 
-// Generate session token tied to identity to avoid tracking oneself
 let activeRole = "User";
 let uniqueUserSessionToken = "session_" + Math.random().toString(36).substring(5);
 
@@ -427,7 +426,7 @@ function nextSong() {
     if (wasPlaying) { music.play().then(() => { widget.classList.add("playing"); label.innerText = "Playing Music 💖"; }); }
 }
 
-// Fixed Presence Tracker Engine
+// Fixed Presence Tracker Engine (Smart Label Cross-Matching)
 function setupRealtimePresence() {
     let rawName = document.getElementById("noteAuthor").value.trim() || "User";
     activeRole = rawName;
@@ -449,32 +448,36 @@ function setupRealtimePresence() {
             const statusTxt = document.getElementById("liveStatusTxt");
             const currentNameLower = activeRole.trim().toLowerCase();
             
-            // Set dynamic partner target
+            // Smarter dynamic partner targets
             let partnerTargetLabel = "partner";
             if (currentNameLower.includes("queen")) {
-                partnerTargetLabel = "Dark king";
-            } else if (currentNameLower.includes("king") || currentNameLower.includes("dark")) {
+                partnerTargetLabel = "King";
+            } else if (currentNameLower.includes("king")) {
                 partnerTargetLabel = "Queen";
             }
 
             let partnerFoundActive = false;
             let partnerLastTimeSeen = "";
 
-            // Evaluate state ignoring current self-token
             keys.forEach(tokenKey => {
                 if (tokenKey !== uniqueUserSessionToken) {
                     const dataPoints = state[tokenKey];
                     if (dataPoints && dataPoints[0]) {
-                        // Confirm if session belongs to the opposite partner name
                         let connectedName = (dataPoints[0].name || "").toLowerCase();
-                        if (connectedName !== currentNameLower) {
+                        // If current user is Queen, any version of King means partner is found active. Vice-versa.
+                        if (currentNameLower.includes("queen") && connectedName.includes("king")) {
                             partnerFoundActive = true;
-                            if (dataPoints[0].onlineAt) {
-                                let timeObj = new Date(dataPoints[0].onlineAt);
-                                let h = timeObj.getHours().toString().padStart(2, '0');
-                                let m = timeObj.getMinutes().toString().padStart(2, '0');
-                                partnerLastTimeSeen = `(last seen ${h}:${m})`;
-                            }
+                        } else if (currentNameLower.includes("king") && connectedName.includes("queen")) {
+                            partnerFoundActive = true;
+                        } else if (!currentNameLower.includes("king") && !currentNameLower.includes("queen") && connectedName !== currentNameLower) {
+                            partnerFoundActive = true;
+                        }
+
+                        if (dataPoints[0].onlineAt) {
+                            let timeObj = new Date(dataPoints[0].onlineAt);
+                            let h = timeObj.getHours().toString().padStart(2, '0');
+                            let m = timeObj.getMinutes().toString().padStart(2, '0');
+                            partnerLastTimeSeen = `(last seen ${h}:${m})`;
                         }
                     }
                 }
@@ -648,4 +651,3 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
-   

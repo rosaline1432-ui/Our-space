@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Space</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -16,12 +15,14 @@
             color: white;
             font-family: Arial, sans-serif;
             min-height: 100vh;
-            padding-bottom: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             position: relative;
-            overflow-x: hidden;
+            overflow: hidden;
         }
         
-        /* --- 1. FLOATING HEARTS BACKGROUND CANVAS --- */
+        /* --- FLOATING HEARTS BACKGROUND CANVAS --- */
         #heartsCanvas {
             position: fixed;
             top: 0;
@@ -32,8 +33,7 @@
             pointer-events: none;
         }
         
-        /* Ensure content stays above the floating hearts background */
-        header, .hero, .secret-box, footer {
+        header, .main-container, footer {
             position: relative;
             z-index: 1;
         }
@@ -42,93 +42,31 @@
             text-align: center;
             padding: 20px;
             background: #1c1124;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
         }
         header h1 {
             font-size: 2rem;
         }
-        
-        /* --- 2. PULSING ONLINE STATUS GLOW --- */
-        .status-container {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 4px 10px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #00ff66;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #00ff66;
-            animation: pulseGlow 1.5s infinite ease-in-out;
-        }
-        .status-text {
-            font-size: 0.75rem;
-            color: #ccc;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-        @keyframes pulseGlow {
-            0% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 4px #00ff66; }
-            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 12px #00ff66; }
-            100% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 4px #00ff66; }
-        }
 
-        /* --- 3. SLICK MUSIC CONTROL WIDGET --- */
-        .music-widget {
+        .main-container {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            background: rgba(42, 19, 55, 0.6);
-            border: 1px solid #461e5d;
-            padding: 8px 16px;
-            border-radius: 30px;
-            margin: 10px auto;
-            max-width: 180px;
-            cursor: pointer;
-            transition: 0.3s ease;
-        }
-        .music-widget:hover {
-            background: rgba(42, 19, 55, 0.9);
-            border-color: #ff4d8d;
-        }
-        .music-icon {
-            font-size: 1.1rem;
-            animation: spinDisc 3s linear infinite;
-            animation-play-state: paused;
-        }
-        .music-widget.playing .music-icon {
-            animation-play-state: running;
-        }
-        .music-label {
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: #fff;
-        }
-        @keyframes spinDisc {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            flex-grow: 1;
+            padding: 20px;
         }
 
         .hero {
             text-align: center;
-            padding: 20px 15px;
+            margin-bottom: 25px;
         }
         .hero img {
-            width: 75px;
-            height: 75px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid white;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .hero h2 {
             margin-bottom: 5px;
@@ -139,20 +77,60 @@
             font-size: 1rem;
             line-height: 1.4;
         }
+
+        /* --- AUDIO CONTROLLER WIDGET --- */
+        .music-widget {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(42, 19, 55, 0.6);
+            border: 1px solid #461e5d;
+            padding: 10px 20px;
+            border-radius: 30px;
+            margin-bottom: 25px;
+            cursor: pointer;
+            transition: 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .music-widget:hover {
+            background: rgba(42, 19, 55, 0.9);
+            border-color: #ff4d8d;
+            transform: scale(1.02);
+        }
+        .music-icon {
+            font-size: 1.2rem;
+            display: inline-block;
+            animation: spinDisc 3s linear infinite;
+            animation-play-state: paused;
+        }
+        .music-widget.playing .music-icon {
+            animation-play-state: running;
+        }
+        .music-label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        @keyframes spinDisc {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .secret-box {
             background-color: #1f0e2c;
-            margin: 25px auto;
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
-            max-width: 400px;
-            width: 90%;
+            max-width: 360px;
+            width: 100%;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         input[type="password"] {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 12px;
+            padding: 14px;
+            margin-bottom: 15px;
             border-radius: 8px;
             border: none;
             outline: none;
@@ -176,95 +154,6 @@
         button:hover {
             background-color: #e0358d;
         }
-        .hidden {
-            display: none;
-        }
-        .board-container {
-            margin-top: 25px;
-            border-top: 2px solid #3d1c52;
-            padding-top: 20px;
-        }
-        
-        /* --- CHAT DISPLAY VIEW --- */
-        .notes-display {
-            background: #0b0210;
-            max-height: 380px;
-            overflow-y: auto;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 25px;
-            border: 1px solid #461e5d;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .chat-row {
-            display: flex;
-            width: 100%;
-        }
-        .chat-row.sent {
-            justify-content: flex-end;
-        }
-        .chat-row.received {
-            justify-content: flex-start;
-        }
-        
-        .chat-bubble {
-            max-width: 82%;
-            padding: 9px 14px 6px 14px;
-            border-radius: 16px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            cursor: pointer;
-            user-select: none;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-        
-        .chat-row.sent .chat-bubble {
-            background-color: #ff4d8d;
-            color: white;
-            border-bottom-right-radius: 4px;
-            text-align: left;
-        }
-        
-        .chat-row.received .chat-bubble {
-            background-color: #2a1337;
-            color: #fff;
-            border-bottom-left-radius: 4px;
-            border: 1px solid #4a235c;
-            text-align: left;
-        }
-        
-        .chat-bubble .sender-label {
-            font-size: 0.75rem;
-            font-weight: bold;
-            margin-bottom: 2px;
-            display: block;
-            opacity: 0.85;
-        }
-        
-        .chat-row.received .chat-bubble .sender-label {
-            color: #ff4da6;
-        }
-
-        /* --- 4. MESSAGE WHATSAPP-STYLE TIMESTAMPS --- */
-        .chat-bubble .timestamp {
-            font-size: 0.68rem;
-            align-self: flex-end;
-            margin-top: 4px;
-            opacity: 0.65;
-            user-select: none;
-        }
-        .chat-row.sent .chat-bubble .timestamp {
-            color: #fff;
-        }
-        .chat-row.received .chat-bubble .timestamp {
-            color: #b19bbd;
-        }
         
         footer {
             text-align: center;
@@ -277,284 +166,110 @@
 </head>
 <body>
 
-    <!-- Canvas element for floating hearts layer -->
     <canvas id="heartsCanvas"></canvas>
 
     <header>
         <h1>𝐕🤍𝐑</h1>
-        <div class="status-container">
-            <div class="status-dot"></div>
-            <div class="status-text">ONLINE</div>
-        </div>
     </header>
 
-    <div class="hero">
-        <img src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" />
-        <h2>𝓜𝓮 𝓥 𝓪𝓷𝓭 𝓜𝔂 𝐐𝓾𝓮𝐞𝓷 𝓡 💕</h2>
-        <p>Welcome to our private website.<br>For my Love, Who is close to my heart to my wife, My pondaati ❤️</p>
-    </div>
+    <div class="main-container">
+        <div class="hero">
+            <img src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" />
+            <h2>𝓜𝓮 𝓥 𝓪𝓷𝓭 𝓜𝔂 𝐐𝓾𝓮𝓮𝓷 𝓡 💕</h2>
+            <p>Welcome to our private website.<br>For my Love, Who is close to my heart to my wife, My pondaati ❤️</p>
+        </div>
 
-    <!-- Interactive Music Player Widget -->
-    <div class="music-widget" id="musicControl" onclick="toggleMusicWidget()">
-        <span class="music-icon">🎵</span>
-        <span class="music-label" id="musicStatus">Music: Off</span>
-    </div>
+        <div class="music-widget" id="musicControl" onclick="toggleMusicWidget()">
+            <span class="music-icon">🎵</span>
+            <span class="music-label" id="musicStatus">Tap to Play Music 🎧</span>
+        </div>
 
-    <div class="secret-box">
-        <h3><strong>ℙ𝕣𝕚𝕧𝕒𝕥𝕖 𝕒𝕣𝕖𝕒👀</strong></h3>
-        <p style="font-style: italic; color: #aaa; margin-bottom: 15px; font-size: 0.9rem;">"Welcome to our dream Romantic and fantasy World."</p>
-        <input type="password" id="password" placeholder="Enter Password">
-        <button id="enterBtn" onclick="checkPassword()">Enter</button>
-        
-        <audio id="bgMusic" loop>
-            <source src="https://files.catbox.moe/ryip47.mp3" type="audio/mpeg">
-        </audio>
-
-        <div class="hidden" id="secretContent">
-            <div class="board-container">
-                <h3 style="margin-bottom: 15px; color: #ff4da6;">𝐎𝓾𝓻 𝐒𝓮𝓬𝓻𝓮𝓽 𝐋𝓮𝓽𝓽𝓮𝓻 💌👾</h3>
-                <input type="text" id="noteAuthor" placeholder="Your Name">
-                <textarea id="noteText" placeholder="Write a message for us..." style="width:100%; height:80px; padding:10px; border-radius:8px; border:none; margin-bottom:12px; font-size:1rem; resize:none; color:black;"></textarea>
-                <button id="postBtn" onclick="saveNote()">Post Message</button>
-                
-                <div class="notes-display" id="notesSpace" style="margin-top:20px;">
-                    <p style="color:#777; font-size:0.9rem; text-align:center;">Loading messages...</p>
-                </div>
-            </div>
+        <div class="secret-box">
+            <h3><strong>ℙ𝕣𝕚𝕧𝕒𝕥𝕖 𝕒𝕣𝕖𝕒👀</strong></h3>
+            <p style="font-style: italic; color: #aaa; margin-bottom: 15px; font-size: 0.9rem;">"Welcome to our dream Romantic and fantasy World."</p>
+            <input type="password" id="password" placeholder="Enter Password" id="passInput">
+            <button id="enterBtn" onclick="checkPassword()">Enter Room</button>
         </div>
     </div>
+
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://files.catbox.moe/ryip47.mp3" type="audio/mpeg">
+    </audio>
 
     <footer>
         Made for us our secret thing. For my Queen and Me..... 🖤
     </footer>
 
 <script>
-const SUPABASE_URL = "https://qawwahkvfibfvguboarm.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dhaGt2ZmliZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M";
+const music = document.getElementById("bgMusic");
+const widget = document.getElementById("musicControl");
+const label = document.getElementById("musicStatus");
 
-const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// Music widget handling functions
 function toggleMusicWidget() {
-    const music = document.getElementById("bgMusic");
-    const widget = document.getElementById("musicControl");
-    const label = document.getElementById("musicStatus");
-    
     if (music.paused) {
         music.play().then(() => {
             widget.classList.add("playing");
-            label.innerText = "Music: On 💖";
-        }).catch(err => console.log("Playback blocked"));
+            label.innerText = "Playing Music 💖";
+        }).catch(err => { label.innerText = "Error: Tap again 🎧"; });
     } else {
         music.pause();
         widget.classList.remove("playing");
-        label.innerText = "Music: Paused";
+        label.innerText = "Music: Paused ⏸️";
     }
 }
 
-async function checkPassword(){
+function checkPassword(){
     const password = document.getElementById("password").value;
     if(password === "visha27112011"){
-        document.getElementById("secretContent").style.display = "block";
-        await loadNotes();
-        setInterval(loadNotes, 5000);
-        
-        // Auto start music setup
-        const music = document.getElementById("bgMusic");
-        const widget = document.getElementById("musicControl");
-        const label = document.getElementById("musicStatus");
-        
-        music.play().then(() => {
-            widget.classList.add("playing");
-            label.innerText = "Music: On 💖";
-        }).catch(e => {
-            label.innerText = "Tap to Play Music 🎵";
-        });
+        // Redirects smoothly to our brand new chat room page file!
+        window.location.href = "chat.html";
     } else {
         alert("Wrong Password");
     }
 }
 
-async function loadNotes() {
-    const notesSpace = document.getElementById("notesSpace");
-    if (!notesSpace) return;
-
-    const { data, error } = await dbClient
-        .from('messages')
-        .select('*')
-        .order('id', { ascending: true });
-
-    if (error) {
-        console.error("Error loading messages:", error);
-        return;
+// Add enter key support for password field
+document.getElementById("password").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        checkPassword();
     }
+});
 
-    const wasAtBottom = notesSpace.scrollHeight - notesSpace.scrollTop <= notesSpace.clientHeight + 60;
-
-    notesSpace.innerHTML = "";
-    if (data.length === 0) {
-        notesSpace.innerHTML = "<p style='color:#777; text-align:center; padding:10px;'>No messages yet. Start chatting!</p>";
-        return;
-    }
-
-    const typedName = document.getElementById("noteAuthor").value.trim().toLowerCase();
-
-    data.forEach(note => {
-        const chatRow = document.createElement("div");
-        const sender = note.author ? note.author.trim() : "Anonymous";
-        
-        if (typedName !== "" && sender.toLowerCase() === typedName) {
-            chatRow.className = "chat-row sent";
-        } else {
-            chatRow.className = "chat-row received";
-        }
-        
-        chatRow.ondblclick = () => deleteNote(note.id);
-        
-        // Calculate timestamp cleanly from ID or database timestamp
-        let formattedTime = "";
-        try {
-            const timeSource = note.created_at ? new Date(note.created_at) : new Date();
-            let hours = timeSource.getHours();
-            let minutes = timeSource.getMinutes();
-            hours = hours < 10 ? '0' + hours : hours;
-            minutes = minutes < 10 ? '0' + minutes : minutes;
-            formattedTime = hours + ":" + minutes;
-        } catch(e) {
-            formattedTime = "--:--";
-        }
-        
-        chatRow.innerHTML = `
-            <div class="chat-bubble">
-                <span class="sender-label">${sender}</span>
-                <div>${note.text}</div>
-                <span class="timestamp">${formattedTime}</span>
-            </div>
-        `;
-        notesSpace.appendChild(chatRow);
-    });
-
-    if (wasAtBottom) {
-        notesSpace.scrollTop = notesSpace.scrollHeight;
-    }
-}
-
-async function saveNote() {
-    const authorInput = document.getElementById("noteAuthor");
-    const textInput = document.getElementById("noteText");
-    const postBtn = document.getElementById("postBtn");
-
-    const author = authorInput.value.trim() || "Anonymous";
-    const text = textInput.value.trim();
-
-    if (text !== "") {
-        postBtn.disabled = true;
-        postBtn.innerText = "Sending...";
-
-        const { error } = await dbClient
-            .from('messages')
-            .insert([{ author: author, text: text }]);
-
-        if (error) {
-            alert("Error saving message: " + error.message);
-            postBtn.disabled = false;
-            postBtn.innerText = "Post Message";
-        } else {
-            textInput.value = "";
-            postBtn.disabled = false;
-            postBtn.innerText = "Post Message";
-            await loadNotes();
-            
-            const notesSpace = document.getElementById("notesSpace");
-            notesSpace.scrollTop = notesSpace.scrollHeight;
-        }
-    }
-}
-
-async function deleteNote(noteId) {
-    if (confirm("✨ Secret Admin Panel: Are you sure you want to delete this message?")) {
-        const { error } = await dbClient
-            .from('messages')
-            .delete()
-            .eq('id', noteId);
-
-        if (error) {
-            alert("Error deleting message: " + error.message);
-        } else {
-            await loadNotes();
-        }
-    }
-}
-
-// --- FLOATING HEARTS BACKGROUND ENGINE ---
+// --- FLOATING HEARTS ANIMATION ---
 const canvas = document.getElementById("heartsCanvas");
 const ctx = canvas.getContext("2d");
-
-let totalHearts = 20;
+let totalHearts = 25;
 let heartsArray = [];
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
 class FloatingHeart {
-    constructor() {
-        this.reset();
-        this.y = Math.random() * canvas.height; // Spread them across screen initially
-    }
+    constructor() { this.reset(); this.y = Math.random() * canvas.height; }
     reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = canvas.height + 20;
-        this.size = Math.random() * 8 + 5;
-        this.speedY = Math.random() * 0.6 + 0.3;
-        this.opacity = Math.random() * 0.4 + 0.1;
-        // Random selection of pink/purple theme neon tones
-        const hueOptions = [330, 300, 280];
-        this.hue = hueOptions[Math.floor(Math.random() * hueOptions.length)];
+        this.x = Math.random() * canvas.width; this.y = canvas.height + 20;
+        this.size = Math.random() * 8 + 5; this.speedY = Math.random() * 0.6 + 0.3;
+        this.opacity = Math.random() * 0.4 + 0.1; this.hue = [330, 300, 280][Math.floor(Math.random() * 3)];
     }
-    update() {
-        this.y -= this.speedY;
-        if (this.y < -20) {
-            this.reset();
-        }
-    }
+    update() { this.y -= this.speedY; if (this.y < -20) this.reset(); }
     draw() {
-        ctx.save();
-        ctx.globalAlpha = this.opacity;
-        ctx.fillStyle = `hsl(${this.hue}, 100%, 65%)`;
-        ctx.beginPath();
-        // Mathematical curve calculation to render custom vectors without external graphic dependencies
-        ctx.moveTo(this.x, this.y);
+        ctx.save(); ctx.globalAlpha = this.opacity; ctx.fillStyle = `hsl(${this.hue}, 100%, 65%)`;
+        ctx.beginPath(); ctx.moveTo(this.x, this.y);
         ctx.bezierCurveTo(this.x - this.size/2, this.y - this.size/2, this.x - this.size, this.y + this.size/3, this.x, this.y + this.size * 0.9);
         ctx.bezierCurveTo(this.x + this.size, this.y + this.size/3, this.x + this.size/2, this.y - this.size/2, this.x, this.y);
-        ctx.fill();
-        ctx.restore();
+        ctx.fill(); ctx.restore();
     }
 }
-
-function initHearts() {
-    for (let i = 0; i < totalHearts; i++) {
-        heartsArray.push(new FloatingHeart());
-    }
-}
-
+function initHearts() { for (let i = 0; i < totalHearts; i++) heartsArray.push(new FloatingHeart()); }
 function animateHearts() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < heartsArray.length; i++) {
-        heartsArray[i].update();
-        heartsArray[i].draw();
-    }
+    for (let i = 0; i < heartsArray.length; i++) { heartsArray[i].update(); heartsArray[i].draw(); }
     requestAnimationFrame(animateHearts);
 }
-
-initHearts();
-animateHearts();
+initHearts(); animateHearts();
 </script>
 </body>
 </html>
-        
-        
-    
+
+                        

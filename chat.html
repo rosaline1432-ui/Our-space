@@ -189,7 +189,7 @@
             flex-direction: column;
             overflow: hidden;
             position: relative;
-            margin-bottom: 95px; /* Creates clean spacing above the fixed bottom footer */
+            margin-bottom: 95px;
         }
 
         .name-setup-bar {
@@ -274,14 +274,14 @@
             opacity: 0.6;
         }
         
-        /* --- NUDGED HIGHER TEXT BAR TO AVOID EXTRA PHONE BUTTON CLIPPING --- */
+        /* --- PROTECTED SAFE ENTRY FOOTER --- */
         .chat-input-area {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
             background: #1c1124;
-            padding: 12px 14px 34px 14px; /* Raised bottom padding to perfectly clear mobile navigation overlay buttons */
+            padding: 12px 14px 34px 14px; 
             display: flex;
             align-items: center;
             gap: 10px;
@@ -354,7 +354,7 @@
     <div class="chat-container">
         <div class="name-setup-bar">
             <label>Who is texting?</label>
-            <input type="text" id="noteAuthor" placeholder="Enter 'Dark king' or 'Queen'..." oninput="handleNameChange()">
+            <input type="text" id="noteAuthor" placeholder="Enter 'King' or 'Queen'..." oninput="handleNameChange()">
         </div>
 
         <div class="messages-display" id="notesSpace">
@@ -378,7 +378,8 @@ let presenceChannel = null;
 
 let activeRole = "User";
 let uniqueUserSessionToken = "session_" + Math.random().toString(36).substring(5);
-let latestGlobalPresenceState = {}; // Local memory cache to keep state responsive during typing
+let latestGlobalPresenceState = {};
+let fallbackPartnerTimestamp = "";
 
 const music = document.getElementById("bgMusic");
 const widget = document.getElementById("musicControl");
@@ -427,24 +428,48 @@ function nextSong() {
     if (wasPlaying) { music.play().then(() => { widget.classList.add("playing"); label.innerText = "Playing Music 💖"; }); }
 }
 
-// --- INSTANT UPDATE PRESENTATION LOGIC ---
-function renderPresenceUI() {
+// --- HTML APPROACH: EXTRACT PARTNER LAST TIME FROM CHAT LOGS ---
+async function findPartnerLastSeenFromMessages(partnerKeyword) {
+    if (!partnerKeyword) return;
+
+    // We scan the regular chat table for the latest message sent by your partner
+    const { data, error } = await dbClient
+        .from('messages')
+        .select('created_at, author')
+        .ilike('author', `%${partnerKeyword}%`)
+        .order('id', { ascending: false })
+        .limit(1);
+
+    if (!error && data && data.length > 0) {
+        let timeObj = new Date(data[0].created_at);
+        let h = timeObj.getHours().toString().padStart(2, '0');
+        let m = timeObj.getMinutes().toString().padStart(2, '0');
+        fallbackPartnerTimestamp = `(last seen ${h}:${m})`;
+    } else {
+        fallbackPartnerTimestamp = "";
+    }
+}
+
+// --- DYNAMIC UI RENDER ---
+async function renderPresenceUI() {
     const statusBox = document.getElementById("liveStatusBox");
     const statusTxt = document.getElementById("liveStatusTxt");
     if (!statusBox || !statusTxt) return;
 
     const currentNameLower = activeRole.trim().toLowerCase();
     
-    // 1. Determine target partner string instantly based on user input
     let partnerTargetLabel = "partner";
+    let searchKeyWord = "";
     if (currentNameLower.includes("queen")) {
         partnerTargetLabel = "King";
+        searchKeyWord = "king";
     } else if (currentNameLower.includes("king")) {
         partnerTargetLabel = "Queen";
+        searchKeyWord = "queen";
     }
 
     let partnerFoundActive = false;
-    let partnerLastTimeSeen = "";
+    let presenceLastSeenTime = "";
 
     const keys = Object.keys(latestGlobalPresenceState);
 
@@ -454,7 +479,6 @@ function renderPresenceUI() {
             if (dataPoints && dataPoints[0]) {
                 let connectedName = (dataPoints[0].name || "").toLowerCase();
                 
-                // Flexible matching definitions
                 if (currentNameLower.includes("queen") && connectedName.includes("king")) {
                     partnerFoundActive = true;
                 } else if (currentNameLower.includes("king") && connectedName.includes("queen")) {
@@ -467,7 +491,7 @@ function renderPresenceUI() {
                     let timeObj = new Date(dataPoints[0].onlineAt);
                     let h = timeObj.getHours().toString().padStart(2, '0');
                     let m = timeObj.getMinutes().toString().padStart(2, '0');
-                    partnerLastTimeSeen = `(last seen ${h}:${m})`;
+                    presenceLastSeenTime = `(last seen ${h}:${m})`;
                 }
             }
         }
@@ -478,8 +502,15 @@ function renderPresenceUI() {
         statusTxt.innerText = `CONNECTED • ${partnerTargetLabel.toUpperCase()} IS ONLINE 😍`;
     } else {
         statusBox.className = "status-container waiting";
-        if (partnerLastTimeSeen) {
-            statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}... ${partnerLastTimeSeen}`;
+        
+        // Pure HTML workaround fallback: check chat log history
+        if (!presenceLastSeenTime && searchKeyWord !== "") {
+            await findPartnerLastSeenFromMessages(searchKeyWord);
+            presenceLastSeenTime = fallbackPartnerTimestamp;
+        }
+
+        if (presenceLastSeenTime) {
+            statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}... ${presenceLastSeenTime}`;
         } else {
             statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}...`;
         }
@@ -514,7 +545,6 @@ function handleNameChange() {
     let currentUserName = document.getElementById("noteAuthor").value.trim() || "User";
     activeRole = currentUserName;
     
-    // Force immediate UI change locally instead of waiting on server lag
     renderPresenceUI();
     loadNotes();
 
@@ -624,7 +654,9 @@ document.getElementById("noteText").addEventListener("keypress", function(e) {
 window.onload = () => {
     setupRealtimePresence();
     loadNotes();
+    
     setInterval(loadNotes, 4000);
+    setInterval(renderPresenceUI, 5000);
 };
 
 // --- BACKGROUND HEARTS ---
@@ -663,3 +695,8 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
+
+            
+                       
+
+                

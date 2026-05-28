@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -78,7 +78,7 @@
             color: #fff;
         }
 
-        /* --- REAL-TIME STATUS INDICATORS --- */
+        /* --- REAL-TIME LAST SEEN INDICATORS --- */
         .status-container {
             display: flex;
             align-items: center;
@@ -92,7 +92,7 @@
             background-color: #ba55d3;
         }
         .status-text {
-            font-size: 0.68rem;
+            font-size: 0.72rem;
             color: #ccc;
             font-weight: 500;
         }
@@ -102,18 +102,25 @@
             box-shadow: 0 0 8px #00ff66;
             animation: pulseGlowGreen 1.5s infinite ease-in-out;
         }
-        .status-container.waiting .status-dot {
-            background-color: #ba55d3;
-            box-shadow: 0 0 6px #ba55d3;
-            animation: pulseGlowPurple 2s infinite ease-in-out;
+        .status-container.offline .status-dot {
+            background-color: #777;
+            box-shadow: none;
         }
         @keyframes pulseGlowGreen {
             0%, 100% { transform: scale(0.9); opacity: 0.7; }
             50% { transform: scale(1.1); opacity: 1; }
         }
-        @keyframes pulseGlowPurple {
-            0%, 100% { transform: scale(0.95); opacity: 0.6; }
-            50% { transform: scale(1.05); opacity: 1; }
+
+        /* --- ROLE CHANGER CONTROLS --- */
+        .role-badge-select {
+            background: #2a1337;
+            border: 1px solid #461e5d;
+            color: #ff4da6;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            outline: none;
+            cursor: pointer;
         }
 
         /* --- JUKEBOX WIDGET --- */
@@ -190,51 +197,6 @@
             overflow: hidden;
             position: relative;
             margin-bottom: 95px;
-        }
-
-        .name-setup-bar {
-            background: #251433;
-            padding: 8px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            flex-shrink: 0;
-        }
-        .name-inputs-row {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-        .name-setup-bar label {
-            font-size: 0.7rem;
-            color: #ff4da6;
-            font-weight: bold;
-            margin-bottom: 3px;
-        }
-        .name-setup-bar input {
-            width: 100%;
-            padding: 6px 10px;
-            border-radius: 6px;
-            border: none;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 0.85rem;
-            outline: none;
-        }
-        .gender-select {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: none;
-            padding: 6px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            outline: none;
         }
 
         .messages-display {
@@ -348,12 +310,18 @@
             <button class="back-btn" onclick="window.location.href='index.html'">◀</button>
             <img class="header-profile-img" src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" />
             <div class="header-titles">
-                <h2>Our Secret Letter 💌</h2>
-                <div class="status-container waiting" id="liveStatusBox">
+                <h2 id="partnerDisplayTitle">Partner</h2>
+                <div class="status-container offline" id="liveStatusBox">
                     <div class="status-dot"></div>
-                    <span class="status-text" id="liveStatusTxt">Connecting...</span>
+                    <span class="status-text" id="liveStatusTxt">Updating status...</span>
                 </div>
             </div>
+        </div>
+        <div>
+            <select class="role-badge-select" id="roleSelector" onchange="changeIdentityRole()">
+                <option value="king">I am King 👑</option>
+                <option value="queen">I am Queen 👑</option>
+            </select>
         </div>
     </header>
 
@@ -371,26 +339,6 @@
     </div>
 
     <div class="chat-container">
-        <div class="name-setup-bar">
-            <div class="name-inputs-row">
-                <div class="input-group">
-                    <label>Your Name</label>
-                    <input type="text" id="noteAuthor" placeholder="Your name..." oninput="handleNameChange()">
-                </div>
-                <div class="input-group">
-                    <label>Partner's Name</label>
-                    <input type="text" id="partnerName" placeholder="Partner's name..." oninput="handleNameChange()">
-                </div>
-                <div class="input-group" style="flex: 0.6;">
-                    <label>I am a</label>
-                    <select id="userGender" class="gender-select" onchange="handleNameChange()">
-                        <option value="boy">Boy 👦</option>
-                        <option value="girl">Girl 👧</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
         <div class="messages-display" id="notesSpace">
             <p style="color:#777; text-align:center; padding-top:20px;">Loading memory logs...</p>
         </div>
@@ -410,7 +358,35 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let presenceChannel = null;
 
-let activeRole = "User";
+let myConfiguredName = "King";
+let partnerConfiguredName = "Queen";
+
+// Load profile from localStorage instead of requiring query links
+function loadIdentityProfile() {
+    let savedRole = localStorage.getItem("chat_user_role") || "king";
+    document.getElementById("roleSelector").value = savedRole;
+    
+    if (savedRole === "queen") {
+        myConfiguredName = "Queen";
+        partnerConfiguredName = "King";
+    } else {
+        myConfiguredName = "King";
+        partnerConfiguredName = "Queen";
+    }
+    
+    document.getElementById("partnerDisplayTitle").innerText = partnerConfiguredName;
+}
+
+function changeIdentityRole() {
+    let selected = document.getElementById("roleSelector").value;
+    localStorage.setItem("chat_user_role", selected);
+    loadIdentityProfile();
+    setupRealtimePresence();
+    loadNotes();
+}
+
+loadIdentityProfile();
+
 let uniqueUserSessionToken = "session_" + Math.random().toString(36).substring(5);
 let latestGlobalPresenceState = {};
 
@@ -461,46 +437,36 @@ function nextSong() {
     if (wasPlaying) { music.play().then(() => { widget.classList.add("playing"); label.innerText = "Playing Music 💖"; }); }
 }
 
-// Save inputs to localStorage so users don't have to retype them every time
-function saveCredentialsToCache() {
-    localStorage.setItem("chat_my_name", document.getElementById("noteAuthor").value.trim());
-    localStorage.setItem("chat_partner_name", document.getElementById("partnerName").value.trim());
-    localStorage.setItem("chat_gender", document.getElementById("userGender").value);
-}
-
-function loadCredentialsFromCache() {
-    if(localStorage.getItem("chat_my_name")) document.getElementById("noteAuthor").value = localStorage.getItem("chat_my_name");
-    if(localStorage.getItem("chat_partner_name")) document.getElementById("partnerName").value = localStorage.getItem("chat_partner_name");
-    if(localStorage.getItem("chat_gender")) document.getElementById("userGender").value = localStorage.getItem("chat_gender");
-}
-
-// Updates row status in database user_status table
 async function updateUserActivityInDB() {
-    let cleanName = (document.getElementById("noteAuthor").value || "").trim().toLowerCase();
-    if (!cleanName || cleanName === "user" || cleanName === "anonymous") return;
-
+    let cleanName = myConfiguredName.toLowerCase();
     await dbClient
         .from('user_status')
         .upsert({ username: cleanName, last_seen: new Date().toISOString() }, { onConflict: 'username' });
 }
 
-// Fetches last seen directly from database
 async function fetchPartnerLastSeenFromDB(partnerNameClean) {
-    if (!partnerNameClean) return "";
-    
     const { data, error } = await dbClient
         .from('user_status')
         .select('last_seen')
         .eq('username', partnerNameClean.toLowerCase())
-        .single();
+        .maybeSingle();
 
     if (!error && data && data.last_seen) {
         let timeObj = new Date(data.last_seen);
-        let h = timeObj.getHours().toString().padStart(2, '0');
-        let m = timeObj.getMinutes().toString().padStart(2, '0');
-        return `(last seen ${h}:${m})`;
+        
+        // Format options for clean readable date/time
+        let timeString = timeObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        // If it was today, just show time, otherwise show date
+        let today = new Date();
+        if (timeObj.toDateString() === today.toDateString()) {
+            return `Last seen today at ${timeString}`;
+        } else {
+            let dateString = timeObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            return `Last seen ${dateString} at ${timeString}`;
+        }
     }
-    return "";
+    return "Offline";
 }
 
 async function renderPresenceUI() {
@@ -508,11 +474,7 @@ async function renderPresenceUI() {
     const statusTxt = document.getElementById("liveStatusTxt");
     if (!statusBox || !statusTxt) return;
 
-    const currentNameLower = activeRole.trim().toLowerCase();
-    const partnerNameInput = (document.getElementById("partnerName").value || "").trim().toLowerCase();
-    
-    let displayPartnerLabel = partnerNameInput ? partnerNameInput : "partner";
-
+    const partnerNameLower = partnerConfiguredName.toLowerCase();
     let partnerFoundActive = false;
     const keys = Object.keys(latestGlobalPresenceState);
 
@@ -521,12 +483,7 @@ async function renderPresenceUI() {
             const dataPoints = latestGlobalPresenceState[tokenKey];
             if (dataPoints && dataPoints[0]) {
                 let connectedName = (dataPoints[0].name || "").trim().toLowerCase();
-                let connectedPartnerOfThatUser = (dataPoints[0].targetingPartner || "").trim().toLowerCase();
-
-                // Connects if they match names explicitly, or cross-target each other
-                if (partnerNameInput !== "" && connectedName === partnerNameInput) {
-                    partnerFoundActive = true;
-                } else if (connectedPartnerOfThatUser === currentNameLower && currentNameLower !== "user") {
+                if (connectedName === partnerNameLower) {
                     partnerFoundActive = true;
                 }
             }
@@ -535,31 +492,16 @@ async function renderPresenceUI() {
 
     if (partnerFoundActive) {
         statusBox.className = "status-container online";
-        statusTxt.innerText = `CONNECTED • ${displayPartnerLabel.toUpperCase()} IS ONLINE 😍`;
+        statusTxt.innerText = `Online`;
     } else {
-        statusBox.className = "status-container waiting";
-        
-        let dbLastSeenTime = "";
-        if (partnerNameInput !== "") {
-            dbLastSeenTime = await fetchPartnerLastSeenFromDB(partnerNameInput);
-        }
-
-        if (dbLastSeenTime) {
-            statusTxt.innerText = `waiting for ${displayPartnerLabel}... ${dbLastSeenTime}`;
-        } else {
-            statusTxt.innerText = `waiting for ${displayPartnerLabel}...`;
-        }
+        statusBox.className = "status-container offline";
+        let dbLastSeenTime = await fetchPartnerLastSeenFromDB(partnerNameLower);
+        statusTxt.innerText = dbLastSeenTime;
     }
 }
 
 function setupRealtimePresence() {
-    let rawName = document.getElementById("noteAuthor").value.trim() || "User";
-    let targetPartner = document.getElementById("partnerName").value.trim() || "";
-    activeRole = rawName;
-
-    if (presenceChannel) {
-        presenceChannel.unsubscribe();
-    }
+    if (presenceChannel) { presenceChannel.unsubscribe(); }
 
     presenceChannel = dbClient.channel('couple-room-state', {
         config: { presence: { key: uniqueUserSessionToken } }
@@ -572,25 +514,10 @@ function setupRealtimePresence() {
         })
         .subscribe(async (status) => {
             if (status === 'SUBSCRIBED') {
-                await presenceChannel.track({ name: rawName, targetingPartner: targetPartner, onlineAt: new Date().toISOString() });
+                await presenceChannel.track({ name: myConfiguredName, onlineAt: new Date().toISOString() });
                 await updateUserActivityInDB();
             }
         });
-}
-
-function handleNameChange() {
-    let currentUserName = document.getElementById("noteAuthor").value.trim() || "User";
-    let targetPartner = document.getElementById("partnerName").value.trim() || "";
-    activeRole = currentUserName;
-    
-    saveCredentialsToCache();
-    renderPresenceUI();
-    loadNotes();
-    updateUserActivityInDB();
-
-    if (presenceChannel && presenceChannel.state === 'joined') {
-        presenceChannel.track({ name: currentUserName, targetingPartner: targetPartner, onlineAt: new Date().toISOString() });
-    }
 }
 
 async function loadNotes() {
@@ -612,13 +539,13 @@ async function loadNotes() {
         return;
     }
 
-    const typedName = document.getElementById("noteAuthor").value.trim().toLowerCase();
+    const typedName = myConfiguredName.toLowerCase();
 
     data.forEach(note => {
         const chatRow = document.createElement("div");
         const sender = note.author ? note.author.trim() : "Anonymous";
         
-        if (typedName !== "" && sender.toLowerCase() === typedName) {
+        if (sender.toLowerCase() === typedName) {
             chatRow.className = "chat-row sent";
         } else {
             chatRow.className = "chat-row received";
@@ -650,12 +577,9 @@ async function loadNotes() {
 }
 
 async function saveNote() {
-    const authorInput = document.getElementById("noteAuthor");
     const textInput = document.getElementById("noteText");
     const postBtn = document.getElementById("postBtn");
     const notesSpace = document.getElementById("notesSpace");
-
-    const author = authorInput.value.trim() || "Anonymous";
     const text = textInput.value.trim();
 
     if (text !== "") {
@@ -663,7 +587,7 @@ async function saveNote() {
 
         const { error } = await dbClient
             .from('messages')
-            .insert([{ author: author, text: text }]);
+            .insert([{ author: myConfiguredName, text: text }]);
 
         if (error) {
             alert("Failed to sync: " + error.message);
@@ -693,7 +617,6 @@ document.getElementById("noteText").addEventListener("keypress", function(e) {
 });
 
 window.onload = () => {
-    loadCredentialsFromCache();
     setupRealtimePresence();
     loadNotes();
     
@@ -738,6 +661,4 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
- 
-                
-                        
+                                         

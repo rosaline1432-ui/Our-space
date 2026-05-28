@@ -189,7 +189,7 @@
             flex-direction: column;
             overflow: hidden;
             position: relative;
-            margin-bottom: 85px; /* Creates protected space above fixed text entry bar */
+            margin-bottom: 95px; /* Creates clean spacing above the fixed bottom footer */
         }
 
         .name-setup-bar {
@@ -274,14 +274,14 @@
             opacity: 0.6;
         }
         
-        /* --- FIXED BOTTOM POSITIONING TO SAFELY CLEAR MOBILE OS BUTTONS --- */
+        /* --- NUDGED HIGHER TEXT BAR TO AVOID EXTRA PHONE BUTTON CLIPPING --- */
         .chat-input-area {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
             background: #1c1124;
-            padding: 10px 14px calc(14px + env(safe-area-inset-bottom)); /* Dynamic extra room for phone navigation keys */
+            padding: 12px 14px 34px 14px; /* Raised bottom padding to perfectly clear mobile navigation overlay buttons */
             display: flex;
             align-items: center;
             gap: 10px;
@@ -298,17 +298,17 @@
             color: white;
             font-size: 0.95rem;
             resize: none;
-            height: 42px;
+            height: 44px;
             outline: none;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         
         .send-btn {
             background: #ff4d8d;
             color: white;
             border: none;
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             font-size: 1.2rem;
             cursor: pointer;
@@ -378,6 +378,7 @@ let presenceChannel = null;
 
 let activeRole = "User";
 let uniqueUserSessionToken = "session_" + Math.random().toString(36).substring(5);
+let latestGlobalPresenceState = {}; // Local memory cache to keep state responsive during typing
 
 const music = document.getElementById("bgMusic");
 const widget = document.getElementById("musicControl");
@@ -426,12 +427,70 @@ function nextSong() {
     if (wasPlaying) { music.play().then(() => { widget.classList.add("playing"); label.innerText = "Playing Music 💖"; }); }
 }
 
-// Fixed Presence Tracker Engine (Smart Label Cross-Matching)
+// --- INSTANT UPDATE PRESENTATION LOGIC ---
+function renderPresenceUI() {
+    const statusBox = document.getElementById("liveStatusBox");
+    const statusTxt = document.getElementById("liveStatusTxt");
+    if (!statusBox || !statusTxt) return;
+
+    const currentNameLower = activeRole.trim().toLowerCase();
+    
+    // 1. Determine target partner string instantly based on user input
+    let partnerTargetLabel = "partner";
+    if (currentNameLower.includes("queen")) {
+        partnerTargetLabel = "King";
+    } else if (currentNameLower.includes("king")) {
+        partnerTargetLabel = "Queen";
+    }
+
+    let partnerFoundActive = false;
+    let partnerLastTimeSeen = "";
+
+    const keys = Object.keys(latestGlobalPresenceState);
+
+    keys.forEach(tokenKey => {
+        if (tokenKey !== uniqueUserSessionToken) {
+            const dataPoints = latestGlobalPresenceState[tokenKey];
+            if (dataPoints && dataPoints[0]) {
+                let connectedName = (dataPoints[0].name || "").toLowerCase();
+                
+                // Flexible matching definitions
+                if (currentNameLower.includes("queen") && connectedName.includes("king")) {
+                    partnerFoundActive = true;
+                } else if (currentNameLower.includes("king") && connectedName.includes("queen")) {
+                    partnerFoundActive = true;
+                } else if (!currentNameLower.includes("king") && !currentNameLower.includes("queen") && connectedName !== currentNameLower && connectedName !== "") {
+                    partnerFoundActive = true;
+                }
+
+                if (dataPoints[0].onlineAt) {
+                    let timeObj = new Date(dataPoints[0].onlineAt);
+                    let h = timeObj.getHours().toString().padStart(2, '0');
+                    let m = timeObj.getMinutes().toString().padStart(2, '0');
+                    partnerLastTimeSeen = `(last seen ${h}:${m})`;
+                }
+            }
+        }
+    });
+
+    if (partnerFoundActive) {
+        statusBox.className = "status-container online";
+        statusTxt.innerText = `CONNECTED • ${partnerTargetLabel.toUpperCase()} IS ONLINE 😍`;
+    } else {
+        statusBox.className = "status-container waiting";
+        if (partnerLastTimeSeen) {
+            statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}... ${partnerLastTimeSeen}`;
+        } else {
+            statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}...`;
+        }
+    }
+}
+
 function setupRealtimePresence() {
     let rawName = document.getElementById("noteAuthor").value.trim() || "User";
     activeRole = rawName;
 
-    if(presenceChannel) {
+    if (presenceChannel) {
         presenceChannel.unsubscribe();
     }
 
@@ -441,59 +500,8 @@ function setupRealtimePresence() {
 
     presenceChannel
         .on('presence', { event: 'sync' }, () => {
-            const state = presenceChannel.presenceState();
-            const keys = Object.keys(state);
-            
-            const statusBox = document.getElementById("liveStatusBox");
-            const statusTxt = document.getElementById("liveStatusTxt");
-            const currentNameLower = activeRole.trim().toLowerCase();
-            
-            // Smarter dynamic partner targets
-            let partnerTargetLabel = "partner";
-            if (currentNameLower.includes("queen")) {
-                partnerTargetLabel = "King";
-            } else if (currentNameLower.includes("king")) {
-                partnerTargetLabel = "Queen";
-            }
-
-            let partnerFoundActive = false;
-            let partnerLastTimeSeen = "";
-
-            keys.forEach(tokenKey => {
-                if (tokenKey !== uniqueUserSessionToken) {
-                    const dataPoints = state[tokenKey];
-                    if (dataPoints && dataPoints[0]) {
-                        let connectedName = (dataPoints[0].name || "").toLowerCase();
-                        // If current user is Queen, any version of King means partner is found active. Vice-versa.
-                        if (currentNameLower.includes("queen") && connectedName.includes("king")) {
-                            partnerFoundActive = true;
-                        } else if (currentNameLower.includes("king") && connectedName.includes("queen")) {
-                            partnerFoundActive = true;
-                        } else if (!currentNameLower.includes("king") && !currentNameLower.includes("queen") && connectedName !== currentNameLower) {
-                            partnerFoundActive = true;
-                        }
-
-                        if (dataPoints[0].onlineAt) {
-                            let timeObj = new Date(dataPoints[0].onlineAt);
-                            let h = timeObj.getHours().toString().padStart(2, '0');
-                            let m = timeObj.getMinutes().toString().padStart(2, '0');
-                            partnerLastTimeSeen = `(last seen ${h}:${m})`;
-                        }
-                    }
-                }
-            });
-
-            if (partnerFoundActive) {
-                statusBox.className = "status-container online";
-                statusTxt.innerText = `CONNECTED • ${partnerTargetLabel.toUpperCase()} IS ONLINE 😍`;
-            } else {
-                statusBox.className = "status-container waiting";
-                if (partnerLastTimeSeen) {
-                    statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}... ${partnerLastTimeSeen}`;
-                } else {
-                    statusTxt.innerText = `waiting for ${partnerTargetLabel.toLowerCase()}...`;
-                }
-            }
+            latestGlobalPresenceState = presenceChannel.presenceState();
+            renderPresenceUI();
         })
         .subscribe(async (status) => {
             if (status === 'SUBSCRIBED') {
@@ -503,10 +511,14 @@ function setupRealtimePresence() {
 }
 
 function handleNameChange() {
+    let currentUserName = document.getElementById("noteAuthor").value.trim() || "User";
+    activeRole = currentUserName;
+    
+    // Force immediate UI change locally instead of waiting on server lag
+    renderPresenceUI();
     loadNotes();
-    if (presenceChannel) {
-        let currentUserName = document.getElementById("noteAuthor").value.trim() || "User";
-        activeRole = currentUserName;
+
+    if (presenceChannel && presenceChannel.state === 'joined') {
         presenceChannel.track({ name: currentUserName, onlineAt: new Date().toISOString() });
     }
 }

@@ -13,13 +13,13 @@
         body {
             background-color: #120118;
             color: white;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* Kept to top so layout flows naturally */
+            justify-content: flex-start;
             position: relative;
-            overflow-y: auto; /* Allows scrolling if needed */
+            overflow-y: auto;
             overflow-x: hidden;
         }
         
@@ -46,6 +46,7 @@
         }
         header h1 {
             font-size: 2rem;
+            letter-spacing: 2px;
         }
 
         .main-container {
@@ -71,9 +72,15 @@
             border: 4px solid white;
             margin-bottom: 15px;
         }
+        
+        /* Fixed text block styling to prevent system font boxes */
         .hero h2 {
-            margin-bottom: 5px;
-            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-style: italic;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 77, 141, 0.4);
         }
         .hero p {
             color: #ccc;
@@ -107,12 +114,14 @@
             gap: 12px;
             cursor: pointer;
             flex-grow: 1;
+            overflow: hidden;
         }
         .music-icon {
             font-size: 1.4rem;
             display: inline-block;
             animation: spinDisc 3s linear infinite;
             animation-play-state: paused;
+            flex-shrink: 0;
         }
         .music-widget.playing .music-icon {
             animation-play-state: running;
@@ -121,17 +130,22 @@
             display: flex;
             flex-direction: column;
             text-align: left;
+            overflow: hidden;
         }
         .music-label {
             font-size: 0.85rem;
             font-weight: bold;
             color: #fff;
+            white-space: nowrap;
         }
         .song-title {
             font-size: 0.75rem;
             color: #ff4da6;
             margin-top: 2px;
             font-style: italic;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .next-song-btn {
             background: none;
@@ -141,6 +155,7 @@
             cursor: pointer;
             padding: 5px;
             transition: 0.2s;
+            flex-shrink: 0;
         }
         .next-song-btn:hover {
             color: #ff4d8d;
@@ -161,14 +176,14 @@
             text-align: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 80px; /* Force deep spacing below the password section */
+            margin-bottom: 80px;
         }
         
         input[type="password"] {
             width: 100%;
             padding: 14px;
             margin-top: 5px;
-            margin-bottom: 20px; /* Clean gap before the enter button */
+            margin-bottom: 20px;
             border-radius: 8px;
             border: none;
             outline: none;
@@ -196,10 +211,9 @@
             background-color: #e0358d;
         }
         
-        /* --- EXTRA FOOTER PADDING FOR SCREEN ROOM --- */
         footer {
             text-align: center;
-            padding: 40px 20px 80px 20px; /* Deep bottom padding to create blank space */
+            padding: 40px 20px 80px 20px;
             font-size: 0.9rem;
             color: #888;
             font-style: italic;
@@ -213,13 +227,13 @@
     <canvas id="heartsCanvas"></canvas>
 
     <header>
-        <h1>𝐕🤍𝐑</h1>
+        <h1>V ❤️ R</h1>
     </header>
 
     <div class="main-container">
         <div class="hero">
             <img src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" />
-            <h2>𝓜𝓮 𝓥 𝓪𝓷𝓭 𝓜𝔂 𝐐𝓾𝓮௥ 𝓡 💕</h2>
+            <h2>Me V and My Queen R 💕</h2>
             <p>Welcome to our private website.<br>For my Love, Who is close to my heart to my wife, My pondaati ❤️</p>
         </div>
 
@@ -392,4 +406,4 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
-
+                    

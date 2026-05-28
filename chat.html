@@ -33,7 +33,7 @@
             pointer-events: none;
         }
 
-        header, .chat-container {
+        header, .playlist-container, .chat-container {
             position: relative;
             z-index: 1;
         }
@@ -115,6 +115,73 @@
         @keyframes pulseGlowPurple {
             0%, 100% { transform: scale(0.95); opacity: 0.6; }
             50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        /* --- JUKEBOX MUSIC WIDGET FOR CHAT ROOM --- */
+        .playlist-container {
+            display: flex;
+            justify-content: center;
+            padding: 8px 16px;
+            background: rgba(28, 17, 36, 0.4);
+        }
+        .music-widget {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            background: rgba(42, 19, 55, 0.85);
+            border: 1px solid #461e5d;
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 340px;
+            transition: 0.3s ease;
+        }
+        .music-clickable-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            flex-grow: 1;
+        }
+        .music-icon {
+            font-size: 1.2rem;
+            display: inline-block;
+            animation: spinDisc 3s linear infinite;
+            animation-play-state: paused;
+        }
+        .music-widget.playing .music-icon {
+            animation-play-state: running;
+        }
+        .music-info {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+        .music-label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .song-title {
+            font-size: 0.7rem;
+            color: #ff4da6;
+            margin-top: 1px;
+            font-style: italic;
+        }
+        .next-song-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 3px;
+            transition: 0.2s;
+        }
+        @keyframes spinDisc {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* --- CORE CHAT SCROLL AREA --- */
@@ -204,7 +271,7 @@
             opacity: 0.6;
         }
         
-        /* --- BOTTOM INPUT CONTROLLER CONTROLLER --- */
+        /* --- BOTTOM INPUT CONTROLLER --- */
         .chat-input-area {
             background: #1c1124;
             padding: 12px;
@@ -264,6 +331,19 @@
         </div>
     </header>
 
+    <div class="playlist-container">
+        <div class="music-widget" id="musicControl">
+            <div class="music-clickable-area" onclick="toggleMusicWidget()">
+                <span class="music-icon" id="discIcon">🎵</span>
+                <div class="music-info">
+                    <span class="music-label" id="musicStatus">Tap to Play Music 🎧</span>
+                    <span class="song-title" id="currentTrackName">Song 1</span>
+                </div>
+            </div>
+            <button class="next-song-btn" onclick="nextSong()" title="Next Song">⏭️</button>
+        </div>
+    </div>
+
     <div class="chat-container">
         <div class="name-setup-bar">
             <label>Who is texting?</label>
@@ -280,6 +360,8 @@
         </div>
     </div>
 
+    <audio id="bgMusic" loop preload="auto" crossorigin="anonymous"></audio>
+
 <script>
 const SUPABASE_URL = "https://qawwahkvfibfvguboarm.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dhaGt2ZmliZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M";
@@ -288,10 +370,104 @@ const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let presenceChannel = null;
 let uniqueUserSessionToken = Math.random().toString(36).substring(7);
 
-// Initialize view logs directly upon secure mount redirection
+// Jukebox Core Integration
+const music = document.getElementById("bgMusic");
+const widget = document.getElementById("musicControl");
+const label = document.getElementById("musicStatus");
+const trackNameDisplay = document.getElementById("currentTrackName");
+
+const playlist = [
+    {
+        title: "Aradhiya. kushi💖",
+        url: "https://files.catbox.moe/w3v3hb.mp3"
+    },
+    {
+        title: "Innum konjam neram🖤",
+        url: "https://files.catbox.moe/tq918f.mp3"
+    },
+    {
+        title: "Kannadi poove👀",
+        url: "https://files.catbox.moe/kfv1no.mp3"
+    },
+    {
+        title: "Naan aval illai💌",
+        url: "https://files.catbox.moe/n32y87.mp3"
+    },
+    {
+        title: "Nallaru Po.....🥺",
+        url: "https://files.catbox.moe/4qaj0i.mp3"
+    },
+    {
+        title: "Neethanae.....Neethanae....🩷",
+        url: "https://files.catbox.moe/8qrykc.mp3"
+    },
+    {
+        title: "Neeyum naanum anbe💗",
+        url: "https://files.catbox.moe/fth0q7.mp3"
+    },
+    {
+        title: "oh penne💘",
+        url: "https://files.catbox.moe/j8nlue.mp3"
+    },
+    {
+        title: "Oxygen🤍",
+        url: "https://files.catbox.moe/u140jk.mp3"
+    },
+    {
+        title: "Velica poove....❤️‍🩹",
+        url: "https://files.catbox.moe/4r721k.mp3"
+    },
+    {
+        title: "venmathiyae..🥺",
+        url: "https://files.catbox.moe/kq5s3n.mp3"
+    },
+    {
+        title: "Yendi vittu pona..🥺💔",
+        url: "https://files.catbox.moe/9rthr7.mp3"
+    }
+];
+
+let currentTrackIndex = 0;
+
+function loadTrack(index) {
+    music.src = playlist[index].url;
+    trackNameDisplay.innerText = playlist[index].title;
+}
+loadTrack(currentTrackIndex);
+
+function toggleMusicWidget() {
+    if (music.paused) {
+        music.play().then(() => {
+            widget.classList.add("playing");
+            label.innerText = "Playing Music 💖";
+        }).catch(err => { 
+            label.innerText = "Error: Tap again 🎧"; 
+            console.error(err);
+        });
+    } else {
+        music.pause();
+        widget.classList.remove("playing");
+        label.innerText = "Music: Paused ⏸️";
+    }
+}
+
+function nextSong() {
+    currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+    const wasPlaying = !music.paused;
+    loadTrack(currentTrackIndex);
+    
+    if (wasPlaying) {
+        music.play().then(() => {
+            widget.classList.add("playing");
+            label.innerText = "Playing Music 💖";
+        });
+    }
+}
+
+// Initialize chatroom upon load
 async function initChatroom() {
     await loadNotes();
-    setInterval(loadNotes, 4000); // 4s regular system poll fallback
+    setInterval(loadNotes, 4000); 
     setupRealtimePresence();
 }
 
@@ -402,6 +578,7 @@ async function saveNote() {
     const authorInput = document.getElementById("noteAuthor");
     const textInput = document.getElementById("noteText");
     const postBtn = document.getElementById("postBtn");
+    const notesSpace = document.getElementById("notesSpace");
 
     const author = authorInput.value.trim() || "Anonymous";
     const text = textInput.value.trim();
@@ -432,7 +609,6 @@ async function deleteNote(noteId) {
     }
 }
 
-// Support hitting Enter inside textarea to send messages instantly
 document.getElementById("noteText").addEventListener("keypress", function(e) {
     if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -478,3 +654,4 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
+            

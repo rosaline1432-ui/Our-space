@@ -1,9 +1,9 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Our Secret Chatroom 💌</title>
+    <title>Chat</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -12,317 +12,239 @@
             margin: 0;
         }
         body {
-            background-color: #0b0210;
-            color: white;
-            font-family: Arial, sans-serif;
+            background-color: #0b141a; /* WhatsApp Dark Mode Background */
+            color: #e9edef;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: relative;
-        }
-        
-        #heartsCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
         }
 
-        header, .playlist-container, .chat-container {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* --- IMMERSIVE CHAT HEADER --- */
+        /* --- SLEEK WHATSAPP-STYLE HEADER --- */
         header {
-            background: #1c1124;
-            padding: 10px 16px;
+            background: #202c33;
+            padding: 10px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #3d1c52;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             flex-shrink: 0;
         }
-        
         .header-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
         .back-btn {
             background: none;
             border: none;
-            color: #ff4da6;
-            font-size: 1.3rem;
+            color: #8696a0;
+            font-size: 1.2rem;
             cursor: pointer;
-            padding: 4px 8px;
         }
         .header-profile-img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #ff4da6;
-        }
-        .header-titles {
-            display: flex;
-            flex-direction: column;
         }
         .header-titles h2 {
-            font-size: 1.05rem;
-            color: #fff;
-        }
-
-        /* --- REAL-TIME LAST SEEN INDICATORS --- */
-        .status-container {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 2px;
-        }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: #ba55d3;
-        }
-        .status-text {
-            font-size: 0.72rem;
-            color: #ccc;
+            font-size: 1rem;
+            color: #e9edef;
             font-weight: 500;
         }
-        
-        .status-container.online .status-dot {
-            background-color: #00ff66;
-            box-shadow: 0 0 8px #00ff66;
-            animation: pulseGlowGreen 1.5s infinite ease-in-out;
-        }
-        .status-container.offline .status-dot {
-            background-color: #777;
-            box-shadow: none;
-        }
-        @keyframes pulseGlowGreen {
-            0%, 100% { transform: scale(0.9); opacity: 0.7; }
-            50% { transform: scale(1.1); opacity: 1; }
-        }
-
-        /* --- ROLE CHANGER CONTROLS --- */
-        .role-badge-select {
-            background: #2a1337;
-            border: 1px solid #461e5d;
-            color: #ff4da6;
-            padding: 4px 8px;
-            border-radius: 12px;
+        .status-text {
             font-size: 0.75rem;
-            outline: none;
-            cursor: pointer;
+            color: #8696a0;
+            display: block;
+            margin-top: 1px;
         }
 
-        /* --- JUKEBOX WIDGET --- */
-        .playlist-container {
-            display: flex;
-            justify-content: center;
-            padding: 6px 16px;
-            background: rgba(28, 17, 36, 0.4);
-            flex-shrink: 0;
-        }
-        .music-widget {
+        .header-actions {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            background: rgba(42, 19, 55, 0.85);
-            border: 1px solid #461e5d;
-            padding: 6px 18px;
-            border-radius: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 340px;
+            gap: 8px;
         }
-        .music-clickable-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            flex-grow: 1;
-            overflow: hidden;
-        }
-        .music-icon {
-            font-size: 1.1rem;
-            display: inline-block;
-            animation: spinDisc 3s linear infinite;
-            animation-play-state: paused;
-        }
-        .music-widget.playing .music-icon {
-            animation-play-state: running;
-        }
-        .music-info {
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-            overflow: hidden;
-        }
-        .music-label {
-            font-size: 0.78rem;
-            font-weight: bold;
-            color: #fff;
-        }
-        .song-title {
-            font-size: 0.68rem;
-            color: #ff4da6;
-            font-style: italic;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .next-song-btn {
+        .fortune-btn {
             background: none;
             border: none;
-            color: #fff;
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
-            padding: 3px;
+            padding: 4px;
+        }
+        .role-badge-select {
+            background: #2a3942;
+            border: none;
+            color: #e9edef;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            outline: none;
         }
 
-        /* --- CHAT VIEWPORT CONTAINER --- */
+        /* --- UTILITY DECKS --- */
+        .widgets-deck {
+            background: #111b21;
+            padding: 6px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222d34;
+        }
+        .countdown-widget {
+            font-size: 0.75rem;
+            color: #00a884; /* WhatsApp Teal */
+            font-weight: 500;
+        }
+        .music-mini-control {
+            font-size: 0.75rem;
+            color: #8696a0;
+            cursor: pointer;
+            background: #202c33;
+            padding: 4px 10px;
+            border-radius: 10px;
+        }
+
+        /* --- MESSAGES AREA --- */
         .chat-container {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: relative;
-            margin-bottom: 95px;
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Classic WhatsApp pattern overlay */
+            background-blend-mode: overlay;
+            background-color: #0b141a;
         }
-
         .messages-display {
             flex-grow: 1;
-            padding: 16px;
+            padding: 12px 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            background: transparent;
-            -webkit-overflow-scrolling: touch;
+            gap: 8px;
         }
 
-        /* --- WHATSAPP DATE BADGES --- */
         .date-separator {
             display: flex;
             justify-content: center;
             margin: 10px 0;
-            width: 100%;
         }
         .date-badge {
-            background-color: rgba(28, 17, 36, 0.85);
-            border: 1px solid #3d1c52;
-            color: #ccc;
-            font-size: 0.75rem;
-            padding: 5px 14px;
-            border-radius: 10px;
-            font-weight: 500;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            background-color: #182229;
+            color: #8696a0;
+            font-size: 0.7rem;
+            padding: 4px 9px;
+            border-radius: 6px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.2);
         }
 
-        .chat-row {
-            display: flex;
-            width: 100%;
-        }
+        .chat-row { display: flex; width: 100%; }
         .chat-row.sent { justify-content: flex-end; }
         .chat-row.received { justify-content: flex-start; }
         
         .chat-bubble {
-            max-width: 78%;
-            padding: 8px 12px 5px 12px;
-            border-radius: 14px;
-            font-size: 0.95rem;
+            max-width: 80%;
+            padding: 6px 10px 8px 10px;
+            border-radius: 8px;
+            font-size: 0.92rem;
             line-height: 1.4;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
+            position: relative;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.15);
         }
-        
         .chat-row.sent .chat-bubble {
-            background-color: #ff4d8d;
-            color: white;
-            border-bottom-right-radius: 2px;
+            background-color: #005c4b; /* WhatsApp Outgoing Green */
+            color: #e9edef;
         }
         .chat-row.received .chat-bubble {
-            background-color: #1f0e2c;
-            color: #fff;
-            border-bottom-left-radius: 2px;
-            border: 1px solid #3d1c52;
+            background-color: #202c33; /* WhatsApp Incoming Grey */
+            color: #e9edef;
+        }
+
+        .bubble-media-preview {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 6px;
+            margin-top: 3px;
+            display: block;
+            cursor: pointer;
         }
         
         .sender-label {
             font-size: 0.72rem;
-            font-weight: bold;
+            font-weight: 600;
+            color: #34b7f1;
             margin-bottom: 2px;
-            opacity: 0.85;
+            display: block;
         }
-        .chat-row.received .sender-label { color: #ff4da6; }
-
         .timestamp {
-            font-size: 0.65rem;
-            align-self: flex-end;
-            margin-top: 4px;
-            opacity: 0.6;
+            font-size: 0.62rem;
+            color: #8696a0;
+            float: right;
+            margin-top: 6px;
+            margin-left: 8px;
         }
-        
-        /* --- BOTTOM INPUT ENTRY DOCK --- */
+
+        .bubble-heart-reaction {
+            position: absolute;
+            bottom: -6px;
+            right: 10px;
+            background: #202c33;
+            border: 1px solid #3b4a54;
+            font-size: 0.7rem;
+            padding: 1px 3px;
+            border-radius: 6px;
+        }
+        .chat-row.received .bubble-heart-reaction { left: 10px; right: auto; }
+
+        /* --- INPUT DOCK --- */
         .chat-input-area {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #1c1124;
-            padding: 12px 14px 34px 14px; 
+            background: #202c33;
+            padding: 8px 10px 24px 10px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            border-top: 1px solid #3d1c52;
-            z-index: 999;
+            gap: 8px;
+        }
+        
+        .attach-btn {
+            background: none;
+            border: none;
+            color: #8696a0;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 4px;
         }
         
         .chat-input-area textarea {
             flex-grow: 1;
-            background: #0b0210;
-            border: 1px solid #461e5d;
-            border-radius: 22px;
-            padding: 11px 16px;
+            background: #2a3942;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 12px;
             color: white;
             font-size: 0.95rem;
             resize: none;
-            height: 44px;
+            height: 38px;
             outline: none;
-            line-height: 1.3;
+            font-family: inherit;
         }
         
         .send-btn {
-            background: #ff4d8d;
+            background: #00a884;
             color: white;
             border: none;
-            width: 44px;
-            height: 44px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: 0.2s ease;
             flex-shrink: 0;
         }
     </style>
 </head>
 <body>
-
-    <canvas id="heartsCanvas"></canvas>
 
     <header>
         <div class="header-left">
@@ -330,40 +252,31 @@
             <img class="header-profile-img" src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" />
             <div class="header-titles">
                 <h2 id="partnerDisplayTitle">Partner</h2>
-                <div class="status-container offline" id="liveStatusBox">
-                    <div class="status-dot"></div>
-                    <span class="status-text" id="liveStatusTxt">Updating status...</span>
-                </div>
+                <span class="status-text" id="liveStatusTxt">online</span>
             </div>
         </div>
-        <div>
+        <div class="header-actions">
+            <button class="fortune-btn" onclick="openLoveFortuneMachine()">🎁</button>
             <select class="role-badge-select" id="roleSelector" onchange="changeIdentityRole()">
-                <option value="king">I am King 👑</option>
-                <option value="queen">I am Queen 👑</option>
+                <option value="king">King</option>
+                <option value="queen">Queen</option>
             </select>
         </div>
     </header>
 
-    <div class="playlist-container">
-        <div class="music-widget" id="musicControl">
-            <div class="music-clickable-area" onclick="toggleMusicWidget()">
-                <span class="music-icon" id="discIcon">🎵</span>
-                <div class="music-info">
-                    <span class="music-label" id="musicStatus">Tap to Play Music 🎧</span>
-                    <span class="song-title" id="currentTrackName">Song 1</span>
-                </div>
-            </div>
-            <button class="next-song-btn" onclick="nextSong()">⏭️</button>
-        </div>
+    <div class="widgets-deck">
+        <div class="countdown-widget" id="countdownBanner">⏳ Loaded...</div>
+        <div class="music-mini-control" id="musicBtn" onclick="toggleMusic()">🎵 Play Music</div>
     </div>
 
     <div class="chat-container">
-        <div class="messages-display" id="notesSpace">
-            <p style="color:#777; text-align:center; padding-top:20px;">Loading memory logs...</p>
-        </div>
+        <div class="messages-display" id="notesSpace"></div>
 
         <div class="chat-input-area">
-            <textarea id="noteText" placeholder="Write a message..."></textarea>
+            <input type="file" id="mediaPicker" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
+            <button class="attach-btn" onclick="document.getElementById('mediaPicker').click()">📎</button>
+            
+            <textarea id="noteText" placeholder="Message" oninput="handleTyping()"></textarea>
             <button class="send-btn" id="postBtn" onclick="saveNote()">➔</button>
         </div>
     </div>
@@ -376,334 +289,221 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let presenceChannel = null;
-
 let myConfiguredName = "King";
 let partnerConfiguredName = "Queen";
+let isTypingState = false;
+let typingTimeout = null;
+let sessionToken = "user_" + Math.random().toString(36).substring(5);
+let collectivePresence = {};
 
-function loadIdentityProfile() {
-    let savedRole = localStorage.getItem("chat_user_role") || "king";
-    document.getElementById("roleSelector").value = savedRole;
-    
-    if (savedRole === "queen") {
-        myConfiguredName = "Queen";
-        partnerConfiguredName = "King";
+const audioTrack = document.getElementById("bgMusic");
+audioTrack.src = "https://files.catbox.moe/w3v3hb.mp3"; // Default track
+
+function toggleMusic() {
+    if (audioTrack.paused) {
+        audioTrack.play();
+        document.getElementById("musicBtn").innerText = "⏸️ Pause";
     } else {
-        myConfiguredName = "King";
-        partnerConfiguredName = "Queen";
+        audioTrack.pause();
+        document.getElementById("musicBtn").innerText = "🎵 Play Music";
     }
-    
+}
+
+function loadIdentity() {
+    let saved = localStorage.getItem("chat_user_role") || "king";
+    document.getElementById("roleSelector").value = saved;
+    myConfiguredName = saved === "queen" ? "Queen" : "King";
+    partnerConfiguredName = saved === "queen" ? "King" : "Queen";
     document.getElementById("partnerDisplayTitle").innerText = partnerConfiguredName;
 }
 
 function changeIdentityRole() {
-    let selected = document.getElementById("roleSelector").value;
-    localStorage.setItem("chat_user_role", selected);
-    loadIdentityProfile();
-    setupRealtimePresence();
+    localStorage.setItem("chat_user_role", document.getElementById("roleSelector").value);
+    loadIdentity();
+    setupPresence();
     loadNotes();
 }
 
-loadIdentityProfile();
+// --- INSTANT GALLERY SEND ---
+async function handleImageUpload(input) {
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    const btn = document.getElementById("postBtn");
+    btn.disabled = true;
 
-let uniqueUserSessionToken = "session_" + Math.random().toString(36).substring(5);
-let latestGlobalPresenceState = {};
+    const ext = file.name.split('.').pop();
+    const uniquePath = `${Date.now()}_${Math.random().toString(36).substring(5)}.${ext}`;
 
-const music = document.getElementById("bgMusic");
-const widget = document.getElementById("musicControl");
-const label = document.getElementById("musicStatus");
-const trackNameDisplay = document.getElementById("currentTrackName");
+    // Upload direct to storage
+    const { data, error } = await dbClient.storage.from('chat-media').upload(uniquePath, file);
 
-const playlist = [
-    { title: "Aradhiya. kushi💖", url: "https://files.catbox.moe/w3v3hb.mp3" },
-    { title: "Innum konjam neram🖤", url: "https://files.catbox.moe/tq918f.mp3" },
-    { title: "Kannadi poove👀", url: "https://files.catbox.moe/kfv1no.mp3" },
-    { title: "Naan aval illai💌", url: "https://files.catbox.moe/n32y87.mp3" },
-    { title: "Nallaru Po.....🥺", url: "https://files.catbox.moe/4qaj0i.mp3" },
-    { title: "Neethanae.....Neethanae....💖", url: "https://files.catbox.moe/8qrykc.mp3" },
-    { title: "Neeyum naanum anbe💗", url: "https://files.catbox.moe/fth0q7.mp3" },
-    { title: "oh penne💘", url: "https://files.catbox.moe/j8nlue.mp3" },
-    { title: "Oxygen🤍", url: "https://files.catbox.moe/u140jk.mp3" },
-    { title: "Velica poove....❤️‍🩹", url: "https://files.catbox.moe/4r721k.mp3" },
-    { title: "venmathiyae..🥺", url: "https://files.catbox.moe/kq5s3n.mp3" },
-    { title: "Yendi vittu pona..🥺💔", url: "https://files.catbox.moe/9rthr7.mp3" }
-];
-
-let currentTrackIndex = 0;
-function loadTrack(index) {
-    music.src = playlist[index].url;
-    trackNameDisplay.innerText = playlist[index].title;
-}
-loadTrack(currentTrackIndex);
-
-function toggleMusicWidget() {
-    if (music.paused) {
-        music.play().then(() => {
-            widget.classList.add("playing");
-            label.innerText = "Playing Music 💖";
-        }).catch(err => { label.innerText = "Tap to play 🎧"; });
-    } else {
-        music.pause();
-        widget.classList.remove("playing");
-        label.innerText = "Music: Paused ⏸️";
-    }
-}
-
-function nextSong() {
-    currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-    const wasPlaying = !music.paused;
-    loadTrack(currentTrackIndex);
-    if (wasPlaying) { music.play().then(() => { widget.classList.add("playing"); label.innerText = "Playing Music 💖"; }); }
-}
-
-async function updateUserActivityInDB() {
-    let cleanName = myConfiguredName.toLowerCase();
-    await dbClient
-        .from('user_status')
-        .upsert({ username: cleanName, last_seen: new Date().toISOString() }, { onConflict: 'username' });
-}
-
-async function fetchPartnerLastSeenFromDB(partnerNameClean) {
-    const { data, error } = await dbClient
-        .from('user_status')
-        .select('last_seen')
-        .eq('username', partnerNameClean.toLowerCase())
-        .maybeSingle();
-
-    if (!error && data && data.last_seen) {
-        let timeObj = new Date(data.last_seen);
-        // Changed to 24-hour clock formatting (Railway Time)
-        let timeString = timeObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-        let today = new Date();
-        
-        if (timeObj.toDateString() === today.toDateString()) {
-            return `Last seen today at ${timeString}`;
-        } else {
-            let dateString = timeObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
-            return `Last seen ${dateString} at ${timeString}`;
-        }
-    }
-    return "Offline";
-}
-
-async function renderPresenceUI() {
-    const statusBox = document.getElementById("liveStatusBox");
-    const statusTxt = document.getElementById("liveStatusTxt");
-    if (!statusBox || !statusTxt) return;
-
-    const partnerNameLower = partnerConfiguredName.toLowerCase();
-    let partnerFoundActive = false;
-    const keys = Object.keys(latestGlobalPresenceState);
-
-    keys.forEach(tokenKey => {
-        if (tokenKey !== uniqueUserSessionToken) {
-            const dataPoints = latestGlobalPresenceState[tokenKey];
-            if (dataPoints && dataPoints[0]) {
-                let connectedName = (dataPoints[0].name || "").trim().toLowerCase();
-                if (connectedName === partnerNameLower) {
-                    partnerFoundActive = true;
-                }
-            }
-        }
-    });
-
-    if (partnerFoundActive) {
-        statusBox.className = "status-container online";
-        statusTxt.innerText = `Online`;
-    } else {
-        statusBox.className = "status-container offline";
-        let dbLastSeenTime = await fetchPartnerLastSeenFromDB(partnerNameLower);
-        statusTxt.innerText = dbLastSeenTime;
-    }
-}
-
-function setupRealtimePresence() {
-    if (presenceChannel) { presenceChannel.unsubscribe(); }
-
-    presenceChannel = dbClient.channel('couple-room-state', {
-        config: { presence: { key: uniqueUserSessionToken } }
-    });
-
-    presenceChannel
-        .on('presence', { event: 'sync' }, () => {
-            latestGlobalPresenceState = presenceChannel.presenceState();
-            renderPresenceUI();
-        })
-        .subscribe(async (status) => {
-            if (status === 'SUBSCRIBED') {
-                await presenceChannel.track({ name: myConfiguredName, onlineAt: new Date().toISOString() });
-                await updateUserActivityInDB();
-            }
-        });
-}
-
-function getFormattedDayLabel(dateObj) {
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-
-    if (dateObj.toDateString() === today.toDateString()) {
-        return "Today";
-    } else if (dateObj.toDateString() === yesterday.toDateString()) {
-        return "Yesterday";
-    } else {
-        return dateObj.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' });
-    }
-}
-
-async function loadNotes() {
-    const notesSpace = document.getElementById("notesSpace");
-    if (!notesSpace) return;
-
-    const { data, error } = await dbClient
-        .from('messages')
-        .select('*')
-        .order('id', { ascending: true });
-
-    if (error) return;
-
-    const wasAtBottom = notesSpace.scrollHeight - notesSpace.scrollTop <= notesSpace.clientHeight + 150;
-    notesSpace.innerHTML = "";
-    
-    if (data.length === 0) {
-        notesSpace.innerHTML = "<p style='color:#555; text-align:center; padding:20px;'>No secret letters logged yet.</p>";
+    if (error) {
+        alert("Make sure you created a public bucket named 'chat-media' in Supabase!");
+        btn.disabled = false;
         return;
     }
 
-    const typedName = myConfiguredName.toLowerCase();
-    let lastRenderedDateString = "";
+    const { data: urlObj } = dbClient.storage.from('chat-media').getPublicUrl(uniquePath);
+    await dbClient.from('messages').insert([{ author: myConfiguredName, text: urlObj.publicUrl }]);
+    
+    input.value = "";
+    btn.disabled = false;
+    loadNotes();
+}
 
-    data.forEach(note => {
-        const timeSource = note.created_at ? new Date(note.created_at) : new Date();
-        const currentDateString = timeSource.toDateString();
+function handleTyping() {
+    if (!isTypingState) {
+        isTypingState = true;
+        if (presenceChannel) presenceChannel.track({ name: myConfiguredName, typing: true });
+    }
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+        isTypingState = false;
+        if (presenceChannel) presenceChannel.track({ name: myConfiguredName, typing: false });
+    }, 1500);
+}
 
-        if (currentDateString !== lastRenderedDateString) {
-            const separatorDiv = document.createElement("div");
-            separatorDiv.className = "date-separator";
-            
-            const badgeSpan = document.createElement("span");
-            badgeSpan.className = "date-badge";
-            badgeSpan.innerText = getFormattedDayLabel(timeSource);
-            
-            separatorDiv.appendChild(badgeSpan);
-            notesSpace.appendChild(separatorDiv);
-            lastRenderedDateString = currentDateString;
+function updatePresenceUI() {
+    const textEl = document.getElementById("liveStatusTxt");
+    let online = false, typing = false;
+
+    Object.keys(collectivePresence).forEach(token => {
+        if (token !== sessionToken) {
+            const state = collectivePresence[token];
+            if (state && state[0] && state[0].name.toLowerCase() === partnerConfiguredName.toLowerCase()) {
+                online = true;
+                if (state[0].typing) typing = true;
+            }
         }
-
-        const chatRow = document.createElement("div");
-        const sender = note.author ? note.author.trim() : "Anonymous";
-        
-        if (sender.toLowerCase() === typedName) {
-            chatRow.className = "chat-row sent";
-        } else {
-            chatRow.className = "chat-row received";
-        }
-        
-        chatRow.ondblclick = () => deleteNote(note.id);
-        
-        let formattedBubbleTime = "";
-        try {
-            // Changed to 24-hour clock formatting (Railway Time)
-            formattedBubbleTime = timeSource.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-        } catch(e) { formattedBubbleTime = "--:--"; }
-        
-        chatRow.innerHTML = `
-            <div class="chat-bubble">
-                <span class="sender-label">${sender}</span>
-                <div>${note.text}</div>
-                <span class="timestamp">${formattedBubbleTime}</span>
-            </div>
-        `;
-        notesSpace.appendChild(chatRow);
     });
 
-    if (wasAtBottom) {
-        notesSpace.scrollTop = notesSpace.scrollHeight;
-    }
+    if (typing) textEl.innerText = "typing...";
+    else if (online) textEl.innerText = "online";
+    else textEl.innerText = "offline";
+}
+
+function setupPresence() {
+    if (presenceChannel) presenceChannel.unsubscribe();
+    presenceChannel = dbClient.channel('presence-deck', { config: { presence: { key: sessionToken } } });
+    presenceChannel
+        .on('presence', { event: 'sync' }, () => {
+            collectivePresence = presenceChannel.presenceState();
+            updatePresenceUI();
+        })
+        .subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') await presenceChannel.track({ name: myConfiguredName, typing: false });
+        });
+}
+
+async function loadNotes() {
+    const space = document.getElementById("notesSpace");
+    const { data, error } = await dbClient.from('messages').select('*').order('id', { ascending: true });
+    if (error || !space) return;
+
+    const scrollCheck = space.scrollHeight - space.scrollTop <= space.clientHeight + 150;
+    space.innerHTML = "";
+    let lastGroupDate = "";
+
+    data.forEach(msg => {
+        const dateObj = msg.created_at ? new Date(msg.created_at) : new Date();
+        const groupDate = dateObj.toDateString();
+
+        if (groupDate !== lastGroupDate) {
+            space.innerHTML += `<div class="date-separator"><span class="date-badge">${dateObj.toLocaleDateString([], {month:'short', day:'numeric'})}</span></div>`;
+            lastGroupDate = groupDate;
+        }
+
+        const isMe = msg.author.trim().toLowerCase() === myConfiguredName.toLowerCase();
+        const side = isMe ? "sent" : "received";
+        const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        const heart = msg.tags === "loved" ? `<span class="bubble-heart-reaction">❤️</span>` : '';
+
+        let content = `<span>${msg.text}</span>`;
+        if (msg.text.match(/\.(jpeg|jpg|gif|png)/i) || msg.text.includes("/storage/v1/object/public/")) {
+            content = `<img class="bubble-media-preview" src="${msg.text}" onclick="window.open('${msg.text}', '_blank')" />`;
+        }
+
+        space.innerHTML += `
+            <div class="chat-row ${side}">
+                <div class="chat-bubble" id="msg-${msg.id}">
+                    <span class="sender-label">${msg.author}</span>
+                    ${content}
+                    <span class="timestamp">${timeStr}</span>
+                    ${heart}
+                </div>
+            </div>
+        `;
+    });
+
+    data.forEach(msg => {
+        const el = document.getElementById(`msg-${msg.id}`);
+        if (!el) return;
+        let tapped = 0;
+        el.addEventListener('click', () => {
+            let now = Date.now();
+            if (now - tapped < 300) toggleHeart(msg.id, msg.tags);
+            tapped = now;
+        });
+
+        let timer;
+        el.addEventListener('touchstart', () => timer = setTimeout(() => deleteMsg(msg.id), 1000));
+        el.addEventListener('touchend', () => clearTimeout(timer));
+    });
+
+    if (scrollCheck) space.scrollTop = space.scrollHeight;
+}
+
+async function toggleHeart(id, tag) {
+    await dbClient.from('messages').update({ tags: tag === "loved" ? null : "loved" }).eq('id', id);
+    loadNotes();
 }
 
 async function saveNote() {
-    const textInput = document.getElementById("noteText");
-    const postBtn = document.getElementById("postBtn");
-    const notesSpace = document.getElementById("notesSpace");
-    const text = textInput.value.trim();
-
-    if (text !== "") {
-        postBtn.disabled = true;
-
-        const { error } = await dbClient
-            .from('messages')
-            .insert([{ author: myConfiguredName, text: text }]);
-
-        if (error) {
-            alert("Failed to sync: " + error.message);
-            postBtn.disabled = false;
-        } else {
-            textInput.value = "";
-            postBtn.disabled = false;
-            await loadNotes();
-            await updateUserActivityInDB();
-            notesSpace.scrollTop = notesSpace.scrollHeight;
-        }
-    }
-}
-
-async function deleteNote(noteId) {
-    if (confirm("✨ Delete message permanently?")) {
-        const { error } = await dbClient.from('messages').delete().eq('id', noteId);
-        if (!error) await loadNotes();
-    }
-}
-
-document.getElementById("noteText").addEventListener("keypress", function(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        saveNote();
-    }
-});
-
-window.onload = () => {
-    setupRealtimePresence();
+    const input = document.getElementById("noteText");
+    const txt = input.value.trim();
+    if (!txt) return;
+    input.value = "";
+    await dbClient.from('messages').insert([{ author: myConfiguredName, text: txt }]);
     loadNotes();
-    
+}
+
+async function deleteMsg(id) {
+    if (confirm("Delete message?")) {
+        await dbClient.from('messages').delete().eq('id', id);
+        loadNotes();
+    }
+}
+
+function updateCountdown() {
+    const target = new Date(2027, 0, 1); 
+    const diff = target - new Date();
+    const banner = document.getElementById("countdownBanner");
+    if (diff <= 0) { banner.innerText = "Happy Milestone! 💖"; return; }
+    const days = Math.floor(diff / 86400000);
+    banner.innerText = `⏳ Next Milestone: ${days} days to go`;
+}
+
+const prompts = [
+    "Send a voice note sharing your favorite thing about today.",
+    "Drop your absolute favorite photo of your partner right now!",
+    "Truth: What conversation made you realize you fell hard?"
+];
+function openLoveFortuneMachine() {
+    alert(`🎁 Daily Challenge:\n\n"${prompts[new Date().getDate() % prompts.length]}"`);
+}
+
+document.getElementById("noteText").addEventListener("keypress", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveNote(); } });
+
+loadIdentity();
+window.onload = () => {
+    setupPresence();
+    loadNotes();
     setInterval(loadNotes, 4000);
-    setInterval(renderPresenceUI, 4000);
-    setInterval(updateUserActivityInDB, 10000); 
+    setInterval(updatePresenceUI, 4000);
+    updateCountdown();
 };
-
-// --- BACKGROUND HEARTS ---
-const canvas = document.getElementById("heartsCanvas");
-const ctx = canvas.getContext("2d");
-let totalHearts = 12;
-let heartsArray = [];
-
-function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
-class FloatingHeart {
-    constructor() { this.reset(); this.y = Math.random() * canvas.height; }
-    reset() {
-        this.x = Math.random() * canvas.width; this.y = canvas.height + 20;
-        this.size = Math.random() * 6 + 4; this.speedY = Math.random() * 0.5 + 0.2;
-        this.opacity = Math.random() * 0.25 + 0.1; this.hue = [330, 300, 280][Math.floor(Math.random() * 3)];
-    }
-    update() { this.y -= this.speedY; if (this.y < -20) this.reset(); }
-    draw() {
-        ctx.save(); ctx.globalAlpha = this.opacity; ctx.fillStyle = `hsl(${this.hue}, 100%, 65%)`;
-        ctx.beginPath(); ctx.moveTo(this.x, this.y);
-        ctx.bezierCurveTo(this.x - this.size/2, this.y - this.size/2, this.x - this.size, this.y + this.size/3, this.x, this.y + this.size * 0.9);
-        ctx.bezierCurveTo(this.x + this.size, this.y + this.size/3, this.x + this.size/2, this.y - this.size/2, this.x, this.y);
-        ctx.fill(); ctx.restore();
-    }
-}
-function initHearts() { for (let i = 0; i < totalHearts; i++) heartsArray.push(new FloatingHeart()); }
-function animateHearts() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < heartsArray.length; i++) { heartsArray[i].update(); heartsArray[i].draw(); }
-    requestAnimationFrame(animateHearts);
-}
-initHearts(); animateHearts();
 </script>
 </body>
 </html>
-                          
+              
+            

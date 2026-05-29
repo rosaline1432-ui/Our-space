@@ -1,4 +1,4 @@
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,8 +12,8 @@
             margin: 0;
         }
         body {
-            background-color: #0b141a; /* WhatsApp Dark Mode Background */
-            color: #e9edef;
+            background-color: #0f1013; /* Solid Sleek Premium Dark */
+            color: #e5e5e7;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             height: 100vh;
             display: flex;
@@ -21,221 +21,206 @@
             overflow: hidden;
         }
 
-        /* --- SLEEK WHATSAPP-STYLE HEADER --- */
+        /* --- CLEAN HEADER --- */
         header {
-            background: #202c33;
-            padding: 10px 14px;
+            background: #16171b;
+            padding: 14px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid #222327;
             flex-shrink: 0;
         }
         .header-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         .back-btn {
             background: none;
             border: none;
-            color: #8696a0;
-            font-size: 1.2rem;
+            color: #007aff;
+            font-size: 1.1rem;
             cursor: pointer;
         }
         .header-profile-img {
-            width: 40px;
-            height: 40px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             object-fit: cover;
         }
         .header-titles h2 {
-            font-size: 1rem;
-            color: #e9edef;
-            font-weight: 500;
+            font-size: 0.95rem;
+            color: #fff;
+            font-weight: 600;
         }
         .status-text {
             font-size: 0.75rem;
-            color: #8696a0;
+            color: #8e8e93;
             display: block;
-            margin-top: 1px;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .fortune-btn {
-            background: none;
-            border: none;
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 4px;
+            margin-top: 2px;
         }
         .role-badge-select {
-            background: #2a3942;
-            border: none;
-            color: #e9edef;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
+            background: #222327;
+            border: 1px solid #2c2d31;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
             outline: none;
         }
 
-        /* --- UTILITY DECKS --- */
+        /* --- SUBTLE MUSIC OVERLAY --- */
         .widgets-deck {
-            background: #111b21;
-            padding: 6px 14px;
+            background: #16171b;
+            padding: 6px 16px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #222d34;
-        }
-        .countdown-widget {
-            font-size: 0.75rem;
-            color: #00a884; /* WhatsApp Teal */
-            font-weight: 500;
+            justify-content: flex-end;
+            border-bottom: 1px solid #222327;
         }
         .music-mini-control {
-            font-size: 0.75rem;
-            color: #8696a0;
+            font-size: 0.72rem;
+            color: #8e8e93;
             cursor: pointer;
-            background: #202c33;
+            background: #222327;
             padding: 4px 10px;
-            border-radius: 10px;
+            border-radius: 6px;
         }
 
-        /* --- MESSAGES AREA --- */
+        /* --- CHAT VIEWPORT --- */
         .chat-container {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Classic WhatsApp pattern overlay */
-            background-blend-mode: overlay;
-            background-color: #0b141a;
+            background: #0f1013;
         }
         .messages-display {
             flex-grow: 1;
-            padding: 12px 16px;
+            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
+        /* --- DATE SEPARATOR --- */
         .date-separator {
             display: flex;
             justify-content: center;
-            margin: 10px 0;
+            margin: 12px 0;
         }
         .date-badge {
-            background-color: #182229;
-            color: #8696a0;
-            font-size: 0.7rem;
-            padding: 4px 9px;
-            border-radius: 6px;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+            color: #8e8e93;
+            font-size: 0.72rem;
+            font-weight: 500;
         }
 
+        /* --- CHAT BUBBLES --- */
         .chat-row { display: flex; width: 100%; }
         .chat-row.sent { justify-content: flex-end; }
         .chat-row.received { justify-content: flex-start; }
         
         .chat-bubble {
-            max-width: 80%;
-            padding: 6px 10px 8px 10px;
-            border-radius: 8px;
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 16px;
             font-size: 0.92rem;
             line-height: 1.4;
             position: relative;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.15);
         }
         .chat-row.sent .chat-bubble {
-            background-color: #005c4b; /* WhatsApp Outgoing Green */
-            color: #e9edef;
+            background-color: #007aff; /* Clean iOS Blue */
+            color: white;
         }
         .chat-row.received .chat-bubble {
-            background-color: #202c33; /* WhatsApp Incoming Grey */
-            color: #e9edef;
+            background-color: #222327; /* Sophisticated Slate */
+            color: white;
         }
 
         .bubble-media-preview {
             max-width: 100%;
-            max-height: 250px;
-            border-radius: 6px;
-            margin-top: 3px;
+            max-height: 240px;
+            border-radius: 10px;
+            margin-top: 4px;
             display: block;
             cursor: pointer;
         }
         
         .sender-label {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            color: #34b7f1;
+            color: #8e8e93;
             margin-bottom: 2px;
             display: block;
         }
         .timestamp {
-            font-size: 0.62rem;
-            color: #8696a0;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.5);
             float: right;
             margin-top: 6px;
             margin-left: 8px;
         }
-
         .bubble-heart-reaction {
             position: absolute;
             bottom: -6px;
-            right: 10px;
-            background: #202c33;
-            border: 1px solid #3b4a54;
+            right: 12px;
+            background: #16171b;
+            border: 1px solid #2c2d31;
             font-size: 0.7rem;
-            padding: 1px 3px;
+            padding: 1px 4px;
             border-radius: 6px;
         }
-        .chat-row.received .bubble-heart-reaction { left: 10px; right: auto; }
+        .chat-row.received .bubble-heart-reaction { left: 12px; right: auto; }
 
-        /* --- INPUT DOCK --- */
+        /* --- TEXTING BAR & DOCK --- */
         .chat-input-area {
-            background: #202c33;
-            padding: 8px 10px 24px 10px;
+            background: #16171b;
+            padding: 10px 14px 28px 14px; /* Premium spacing for mobile gesture bars */
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            border-top: 1px solid #222327;
         }
         
         .attach-btn {
-            background: none;
+            background: #222327;
             border: none;
-            color: #8696a0;
-            font-size: 1.4rem;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
             cursor: pointer;
-            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
         
         .chat-input-area textarea {
             flex-grow: 1;
-            background: #2a3942;
-            border: none;
-            border-radius: 8px;
-            padding: 9px 12px;
+            background: #222327;
+            border: 1px solid #2c2d31;
+            border-radius: 20px;
+            padding: 9px 15px;
             color: white;
             font-size: 0.95rem;
             resize: none;
             height: 38px;
             outline: none;
             font-family: inherit;
+            line-height: 1.2;
         }
         
         .send-btn {
-            background: #00a884;
+            background: #007aff;
             color: white;
             border: none;
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -249,23 +234,18 @@
     <header>
         <div class="header-left">
             <button class="back-btn" onclick="window.location.href='index.html'">◀</button>
-            <img class="header-profile-img" src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" />
             <div class="header-titles">
                 <h2 id="partnerDisplayTitle">Partner</h2>
                 <span class="status-text" id="liveStatusTxt">online</span>
             </div>
         </div>
-        <div class="header-actions">
-            <button class="fortune-btn" onclick="openLoveFortuneMachine()">🎁</button>
-            <select class="role-badge-select" id="roleSelector" onchange="changeIdentityRole()">
-                <option value="king">King</option>
-                <option value="queen">Queen</option>
-            </select>
-        </div>
+        <select class="role-badge-select" id="roleSelector" onchange="changeIdentityRole()">
+            <option value="king">King</option>
+            <option value="queen">Queen</option>
+        </select>
     </header>
 
     <div class="widgets-deck">
-        <div class="countdown-widget" id="countdownBanner">⏳ Loaded...</div>
         <div class="music-mini-control" id="musicBtn" onclick="toggleMusic()">🎵 Play Music</div>
     </div>
 
@@ -274,7 +254,7 @@
 
         <div class="chat-input-area">
             <input type="file" id="mediaPicker" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
-            <button class="attach-btn" onclick="document.getElementById('mediaPicker').click()">📎</button>
+            <button class="attach-btn" onclick="document.getElementById('mediaPicker').click()">+</button>
             
             <textarea id="noteText" placeholder="Message" oninput="handleTyping()"></textarea>
             <button class="send-btn" id="postBtn" onclick="saveNote()">➔</button>
@@ -297,7 +277,7 @@ let sessionToken = "user_" + Math.random().toString(36).substring(5);
 let collectivePresence = {};
 
 const audioTrack = document.getElementById("bgMusic");
-audioTrack.src = "https://files.catbox.moe/w3v3hb.mp3"; // Default track
+audioTrack.src = "https://files.catbox.moe/w3v3hb.mp3";
 
 function toggleMusic() {
     if (audioTrack.paused) {
@@ -324,7 +304,6 @@ function changeIdentityRole() {
     loadNotes();
 }
 
-// --- INSTANT GALLERY SEND ---
 async function handleImageUpload(input) {
     if (!input.files || input.files.length === 0) return;
     const file = input.files[0];
@@ -334,7 +313,6 @@ async function handleImageUpload(input) {
     const ext = file.name.split('.').pop();
     const uniquePath = `${Date.now()}_${Math.random().toString(36).substring(5)}.${ext}`;
 
-    // Upload direct to storage
     const { data, error } = await dbClient.storage.from('chat-media').upload(uniquePath, file);
 
     if (error) {
@@ -413,7 +391,12 @@ async function loadNotes() {
             lastGroupDate = groupDate;
         }
 
-        const isMe = msg.author.trim().toLowerCase() === myConfiguredName.toLowerCase();
+        let msgAuthor = msg.author ? msg.author.trim() : "King";
+        if (msgAuthor.toLowerCase() === "parker") {
+            msgAuthor = "King";
+        }
+
+        const isMe = msgAuthor.toLowerCase() === myConfiguredName.toLowerCase();
         const side = isMe ? "sent" : "received";
         const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
         const heart = msg.tags === "loved" ? `<span class="bubble-heart-reaction">❤️</span>` : '';
@@ -426,7 +409,7 @@ async function loadNotes() {
         space.innerHTML += `
             <div class="chat-row ${side}">
                 <div class="chat-bubble" id="msg-${msg.id}">
-                    <span class="sender-label">${msg.author}</span>
+                    <span class="sender-label">${msgAuthor}</span>
                     ${content}
                     <span class="timestamp">${timeStr}</span>
                     ${heart}
@@ -474,24 +457,6 @@ async function deleteMsg(id) {
     }
 }
 
-function updateCountdown() {
-    const target = new Date(2027, 0, 1); 
-    const diff = target - new Date();
-    const banner = document.getElementById("countdownBanner");
-    if (diff <= 0) { banner.innerText = "Happy Milestone! 💖"; return; }
-    const days = Math.floor(diff / 86400000);
-    banner.innerText = `⏳ Next Milestone: ${days} days to go`;
-}
-
-const prompts = [
-    "Send a voice note sharing your favorite thing about today.",
-    "Drop your absolute favorite photo of your partner right now!",
-    "Truth: What conversation made you realize you fell hard?"
-];
-function openLoveFortuneMachine() {
-    alert(`🎁 Daily Challenge:\n\n"${prompts[new Date().getDate() % prompts.length]}"`);
-}
-
 document.getElementById("noteText").addEventListener("keypress", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveNote(); } });
 
 loadIdentity();
@@ -500,9 +465,8 @@ window.onload = () => {
     loadNotes();
     setInterval(loadNotes, 4000);
     setInterval(updatePresenceUI, 4000);
-    updateCountdown();
 };
 </script>
 </body>
 </html>
-                             
+                           

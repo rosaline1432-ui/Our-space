@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Chat</title>
+    <title>Our Space 👑❤️</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -11,24 +11,30 @@
             padding: 0;
             margin: 0;
         }
-        body {
-            background-color: #0f1013; /* Solid Sleek Premium Dark */
-            color: #e5e5e7;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+        
+        /* Fixed full-screen layout preventing mobile browser clipping */
+        html, body {
+            height: 100%;
+            width: 100%;
             overflow: hidden;
+            background-color: #0d080b; /* Rich dark wine tone */
         }
 
-        /* --- CLEAN HEADER --- */
+        body {
+            color: #f5f0f2;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- ROMANTIC LUXE HEADER --- */
         header {
-            background: #16171b;
-            padding: 14px 16px;
+            background: #1a1015;
+            padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #222327;
+            border-bottom: 1px solid #2e1c25;
             flex-shrink: 0;
         }
         .header-left {
@@ -39,193 +45,245 @@
         .back-btn {
             background: none;
             border: none;
-            color: #007aff;
-            font-size: 1.1rem;
+            color: #ff4d79;
+            font-size: 1.2rem;
             cursor: pointer;
         }
         .header-profile-img {
-            width: 38px;
-            height: 38px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             object-fit: cover;
+            border: 2px solid #ff4d79;
         }
         .header-titles h2 {
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: #fff;
             font-weight: 600;
+            letter-spacing: 0.3px;
         }
-        .status-text {
-            font-size: 0.75rem;
-            color: #8e8e93;
-            display: block;
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             margin-top: 2px;
         }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #8e8e93;
+        }
+        .status-text {
+            font-size: 0.78rem;
+            color: #b5a4ab;
+        }
+        .status-container.online .status-dot { background-color: #00ff88; }
+        .status-container.typing .status-dot {
+            background-color: #ff4d79;
+            animation: heartBeat 1s infinite alternate;
+        }
+        @keyframes heartBeat { 0% { opacity: 0.4; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1.1); } }
+
         .role-badge-select {
-            background: #222327;
-            border: 1px solid #2c2d31;
-            color: #fff;
-            padding: 6px 10px;
-            border-radius: 8px;
+            background: #2b1b23;
+            border: 1px solid #4a303d;
+            color: #ffb3c6;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 0.8rem;
+            font-weight: 600;
             outline: none;
+            cursor: pointer;
         }
 
-        /* --- SUBTLE MUSIC OVERLAY --- */
+        /* --- LOVE JOURNEY DECK --- */
         .widgets-deck {
-            background: #16171b;
-            padding: 6px 16px;
+            background: #140c10;
+            padding: 8px 16px;
             display: flex;
-            justify-content: flex-end;
-            border-bottom: 1px solid #222327;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #23151c;
+            flex-shrink: 0;
+        }
+        .countdown-widget {
+            font-size: 0.8rem;
+            color: #ffb3c6;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         .music-mini-control {
-            font-size: 0.72rem;
-            color: #8e8e93;
+            font-size: 0.75rem;
+            color: #ff4d79;
             cursor: pointer;
-            background: #222327;
-            padding: 4px 10px;
-            border-radius: 6px;
+            background: #25151e;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid #3d2230;
+            font-weight: 500;
         }
 
-        /* --- CHAT VIEWPORT --- */
+        /* --- MAIN VIEWPORT CONTAINER --- */
         .chat-container {
-            flex-grow: 1;
+            flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            background: #0f1013;
+            position: relative;
         }
+        
         .messages-display {
-            flex-grow: 1;
+            flex: 1;
             padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* --- DATE SEPARATOR --- */
+        /* --- DATE TIMELINE --- */
         .date-separator {
             display: flex;
             justify-content: center;
-            margin: 12px 0;
+            margin: 8px 0;
         }
         .date-badge {
-            color: #8e8e93;
+            background-color: #23151c;
+            color: #ffb3c6;
             font-size: 0.72rem;
-            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #3d2230;
         }
 
-        /* --- CHAT BUBBLES --- */
+        /* --- ROMANTIC GRADIENT BUBBLES --- */
         .chat-row { display: flex; width: 100%; }
         .chat-row.sent { justify-content: flex-end; }
         .chat-row.received { justify-content: flex-start; }
         
         .chat-bubble {
-            max-width: 75%;
+            max-width: 78%;
             padding: 10px 14px;
-            border-radius: 16px;
-            font-size: 0.92rem;
-            line-height: 1.4;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            line-height: 1.45;
             position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         .chat-row.sent .chat-bubble {
-            background-color: #007aff; /* Clean iOS Blue */
+            background: linear-gradient(135deg, #ff4d79, #ff2a5f); /* Rose Gradient */
             color: white;
+            border-bottom-right-radius: 4px;
         }
         .chat-row.received .chat-bubble {
-            background-color: #222327; /* Sophisticated Slate */
-            color: white;
+            background: #22161c; /* Soft Velvet */
+            color: #f5f0f2;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #33202a;
         }
 
         .bubble-media-preview {
             max-width: 100%;
-            max-height: 240px;
-            border-radius: 10px;
-            margin-top: 4px;
+            max-height: 260px;
+            border-radius: 14px;
+            margin-top: 6px;
             display: block;
             cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         
         .sender-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #8e8e93;
-            margin-bottom: 2px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #ffb3c6;
+            margin-bottom: 3px;
             display: block;
         }
+        .chat-row.sent .sender-label { color: #ffe5ec; }
+
         .timestamp {
             font-size: 0.65rem;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.6);
             float: right;
             margin-top: 6px;
-            margin-left: 8px;
+            margin-left: 10px;
         }
+        .chat-row.received .timestamp { color: #a5949c; }
+
         .bubble-heart-reaction {
             position: absolute;
-            bottom: -6px;
+            bottom: -8px;
             right: 12px;
-            background: #16171b;
-            border: 1px solid #2c2d31;
-            font-size: 0.7rem;
-            padding: 1px 4px;
-            border-radius: 6px;
+            background: #1a1015;
+            border: 1px solid #ff4d79;
+            font-size: 0.75rem;
+            padding: 2px 5px;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .chat-row.received .bubble-heart-reaction { left: 12px; right: auto; }
 
-        /* --- TEXTING BAR & DOCK --- */
+        /* --- PERFECTLY POSITIONED BOTTOM DOCK BAR --- */
         .chat-input-area {
             background: #16171b;
-            padding: 10px 14px 28px 14px; /* Premium spacing for mobile gesture bars */
+            padding: 12px 14px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             border-top: 1px solid #222327;
+            flex-shrink: 0;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
         }
         
         .attach-btn {
-            background: #222327;
-            border: none;
-            color: #fff;
-            width: 36px;
-            height: 36px;
+            background: #2b1b23;
+            border: 1px solid #4a303d;
+            color: #ff4d79;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            transition: all 0.2s ease;
         }
         
         .chat-input-area textarea {
-            flex-grow: 1;
-            background: #222327;
+            flex: 1;
+            background: #1f2024;
             border: 1px solid #2c2d31;
-            border-radius: 20px;
-            padding: 9px 15px;
+            border-radius: 22px;
+            padding: 10px 16px;
             color: white;
-            font-size: 0.95rem;
+            font-size: 0.98rem;
             resize: none;
-            height: 38px;
+            height: 42px;
             outline: none;
             font-family: inherit;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         
         .send-btn {
-            background: #007aff;
+            background: linear-gradient(135deg, #ff4d79, #ff2a5f);
             color: white;
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(255,77,121,0.3);
         }
     </style>
 </head>
@@ -234,18 +292,24 @@
     <header>
         <div class="header-left">
             <button class="back-btn" onclick="window.location.href='index.html'">◀</button>
+            <img class="header-profile-img" src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" onerror="this.src='https://placehold.co/100x100/2b1b23/ff4d79?text=%E2%9D%A4%EF%B8%8F'" />
             <div class="header-titles">
                 <h2 id="partnerDisplayTitle">Partner</h2>
-                <span class="status-text" id="liveStatusTxt">online</span>
+                <div class="status-container offline" id="liveStatusBox">
+                    <div class="status-dot"></div>
+                    <span class="status-text" id="liveStatusTxt">offline</span>
+                </div>
             </div>
         </div>
         <select class="role-badge-select" id="roleSelector" onchange="changeIdentityRole()">
-            <option value="king">King</option>
-            <option value="queen">Queen</option>
+            <option value="king">King 👑</option>
+            <option value="queen">Queen 👑</option>
         </select>
     </header>
 
     <div class="widgets-deck">
+        <!-- Input your special date below in the script to track days automatically -->
+        <div class="countdown-widget" id="countdownBanner">❤️ Days Together: --</div>
         <div class="music-mini-control" id="musicBtn" onclick="toggleMusic()">🎵 Play Music</div>
     </div>
 
@@ -254,9 +318,9 @@
 
         <div class="chat-input-area">
             <input type="file" id="mediaPicker" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
-            <button class="attach-btn" onclick="document.getElementById('mediaPicker').click()">+</button>
+            <button class="attach-btn" onclick="document.getElementById('mediaPicker').click()">📎</button>
             
-            <textarea id="noteText" placeholder="Message" oninput="handleTyping()"></textarea>
+            <textarea id="noteText" placeholder="Write a message..." oninput="handleTyping()"></textarea>
             <button class="send-btn" id="postBtn" onclick="saveNote()">➔</button>
         </div>
     </div>
@@ -275,6 +339,9 @@ let isTypingState = false;
 let typingTimeout = null;
 let sessionToken = "user_" + Math.random().toString(36).substring(5);
 let collectivePresence = {};
+
+// Change this date to your real anniversary date to see it count up!
+const ANNIVERSARY_DATE = new Date("2025-05-20"); 
 
 const audioTrack = document.getElementById("bgMusic");
 audioTrack.src = "https://files.catbox.moe/w3v3hb.mp3";
@@ -316,7 +383,7 @@ async function handleImageUpload(input) {
     const { data, error } = await dbClient.storage.from('chat-media').upload(uniquePath, file);
 
     if (error) {
-        alert("Make sure you created a public bucket named 'chat-media' in Supabase!");
+        alert("Please ensure your storage bucket named 'chat-media' is created and set to Public in Supabase!");
         btn.disabled = false;
         return;
     }
@@ -342,6 +409,7 @@ function handleTyping() {
 }
 
 function updatePresenceUI() {
+    const statusBox = document.getElementById("liveStatusBox");
     const textEl = document.getElementById("liveStatusTxt");
     let online = false, typing = false;
 
@@ -355,9 +423,16 @@ function updatePresenceUI() {
         }
     });
 
-    if (typing) textEl.innerText = "typing...";
-    else if (online) textEl.innerText = "online";
-    else textEl.innerText = "offline";
+    if (typing) {
+        statusBox.className = "status-container typing";
+        textEl.innerText = "typing...";
+    } else if (online) {
+        statusBox.className = "status-container online";
+        textEl.innerText = "online";
+    } else {
+        statusBox.className = "status-container offline";
+        textEl.innerText = "offline";
+    }
 }
 
 function setupPresence() {
@@ -378,7 +453,7 @@ async function loadNotes() {
     const { data, error } = await dbClient.from('messages').select('*').order('id', { ascending: true });
     if (error || !space) return;
 
-    const scrollCheck = space.scrollHeight - space.scrollTop <= space.clientHeight + 150;
+    const scrollCheck = space.scrollHeight - space.scrollTop <= space.clientHeight + 200;
     space.innerHTML = "";
     let lastGroupDate = "";
 
@@ -451,10 +526,17 @@ async function saveNote() {
 }
 
 async function deleteMsg(id) {
-    if (confirm("Delete message?")) {
+    if (confirm("Delete this sweet message?")) {
         await dbClient.from('messages').delete().eq('id', id);
         loadNotes();
     }
+}
+
+function updateLoveTracker() {
+    const today = new Date();
+    const diffTime = Math.abs(today - ANNIVERSARY_DATE);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    document.getElementById("countdownBanner").innerText = `❤️ Days Together: ${diffDays}`;
 }
 
 document.getElementById("noteText").addEventListener("keypress", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveNote(); } });
@@ -463,10 +545,10 @@ loadIdentity();
 window.onload = () => {
     setupPresence();
     loadNotes();
+    updateLoveTracker();
     setInterval(loadNotes, 4000);
     setInterval(updatePresenceUI, 4000);
 };
 </script>
 </body>
 </html>
-                           

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -210,6 +210,25 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* --- WHATSAPP DATE BADGES --- */
+        .date-separator {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .date-badge {
+            background-color: rgba(28, 17, 36, 0.85);
+            border: 1px solid #3d1c52;
+            color: #ccc;
+            font-size: 0.75rem;
+            padding: 5px 14px;
+            border-radius: 10px;
+            font-weight: 500;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
         .chat-row {
             display: flex;
             width: 100%;
@@ -361,7 +380,6 @@ let presenceChannel = null;
 let myConfiguredName = "King";
 let partnerConfiguredName = "Queen";
 
-// Load profile from localStorage instead of requiring query links
 function loadIdentityProfile() {
     let savedRole = localStorage.getItem("chat_user_role") || "king";
     document.getElementById("roleSelector").value = savedRole;
@@ -453,12 +471,9 @@ async function fetchPartnerLastSeenFromDB(partnerNameClean) {
 
     if (!error && data && data.last_seen) {
         let timeObj = new Date(data.last_seen);
-        
-        // Format options for clean readable date/time
-        let timeString = timeObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        // If it was today, just show time, otherwise show date
+        let timeString = timeObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
         let today = new Date();
+        
         if (timeObj.toDateString() === today.toDateString()) {
             return `Last seen today at ${timeString}`;
         } else {
@@ -520,6 +535,20 @@ function setupRealtimePresence() {
         });
 }
 
+function getFormattedDayLabel(dateObj) {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    if (dateObj.toDateString() === today.toDateString()) {
+        return "Today";
+    } else if (dateObj.toDateString() === yesterday.toDateString()) {
+        return "Yesterday";
+    } else {
+        return dateObj.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+}
+
 async function loadNotes() {
     const notesSpace = document.getElementById("notesSpace");
     if (!notesSpace) return;
@@ -540,8 +569,26 @@ async function loadNotes() {
     }
 
     const typedName = myConfiguredName.toLowerCase();
+    let lastRenderedDateString = "";
 
     data.forEach(note => {
+        const timeSource = note.created_at ? new Date(note.created_at) : new Date();
+        const currentDateString = timeSource.toDateString();
+
+        // Inject centered WhatsApp-style Date Badge when a new day starts
+        if (currentDateString !== lastRenderedDateString) {
+            const separatorDiv = document.createElement("div");
+            separatorDiv.className = "date-separator";
+            
+            const badgeSpan = document.createElement("span");
+            badgeSpan.className = "date-badge";
+            badgeSpan.innerText = getFormattedDayLabel(timeSource);
+            
+            separatorDiv.appendChild(badgeSpan);
+            notesSpace.appendChild(separatorDiv);
+            lastRenderedDateString = currentDateString;
+        }
+
         const chatRow = document.createElement("div");
         const sender = note.author ? note.author.trim() : "Anonymous";
         
@@ -553,19 +600,16 @@ async function loadNotes() {
         
         chatRow.ondblclick = () => deleteNote(note.id);
         
-        let formattedTime = "";
+        let formattedBubbleTime = "";
         try {
-            const timeSource = note.created_at ? new Date(note.created_at) : new Date();
-            let hours = timeSource.getHours().toString().padStart(2, '0');
-            let minutes = timeSource.getMinutes().toString().padStart(2, '0');
-            formattedTime = hours + ":" + minutes;
-        } catch(e) { formattedTime = "--:--"; }
+            formattedBubbleTime = timeSource.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        } catch(e) { formattedBubbleTime = "--:--"; }
         
         chatRow.innerHTML = `
             <div class="chat-bubble">
                 <span class="sender-label">${sender}</span>
                 <div>${note.text}</div>
-                <span class="timestamp">${formattedTime}</span>
+                <span class="timestamp">${formattedBubbleTime}</span>
             </div>
         `;
         notesSpace.appendChild(chatRow);
@@ -661,4 +705,6 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
-                                         
+                    
+        
+        

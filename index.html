@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -33,7 +33,74 @@
             display: flex;
         }
 
-        /* --- PORTAL HOMEPAGE STYLE --- */
+        /* --- SCREEN 0: PRIVATE PASSCODE LOCK --- */
+        #lockScreen {
+            justify-content: center;
+            align-items: center;
+            background: #0d080b;
+            padding: 24px;
+            text-align: center;
+        }
+        .lock-heart {
+            font-size: 3rem;
+            color: #ff4d79;
+            margin-bottom: 20px;
+            animation: pulseHeart 1.5s infinite alternate;
+        }
+        @keyframes pulseHeart { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
+        
+        .lock-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        .lock-subtitle {
+            font-size: 0.85rem;
+            color: #b5a4ab;
+            margin-bottom: 24px;
+        }
+        .password-input-container {
+            position: relative;
+            max-width: 280px;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        .password-input-container input {
+            width: 100%;
+            background: #1a1015;
+            border: 2px solid #2e1c25;
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+            letter-spacing: 2px;
+            transition: border-color 0.3s;
+        }
+        .password-input-container input:focus {
+            border-color: #ff4d79;
+        }
+        .unlock-btn {
+            background: linear-gradient(135deg, #ff4d79, #ff2a5f);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 42, 95, 0.3);
+        }
+        .error-hint {
+            color: #ff4d4d;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* --- SCREEN 1: PORTAL HOMEPAGE STYLE --- */
         #homeScreen {
             justify-content: center;
             align-items: center;
@@ -84,7 +151,7 @@
             box-shadow: 0 4px 15px rgba(255, 42, 95, 0.4);
         }
 
-        /* --- LIVE PREMIUM CHAT HEADER --- */
+        /* --- SCREEN 2: LIVE CHAT AREA --- */
         header {
             background: #1a1015;
             padding: 12px 16px;
@@ -200,7 +267,7 @@
             border: 1px solid #3d2230;
         }
 
-        /* --- MAIN VIEWPORT MESSAGES CONSOLE --- */
+        /* --- CHAT VIEWPORT MESSAGE CONSOLE --- */
         .chat-container {
             flex: 1;
             display: flex;
@@ -352,7 +419,18 @@
 </head>
 <body>
 
-    <div id="homeScreen" class="app-screen active">
+    <div id="lockScreen" class="app-screen active">
+        <div class="lock-heart">💖</div>
+        <h2 class="lock-title">Our Private Space</h2>
+        <p class="lock-subtitle">Enter the password to access</p>
+        <div class="password-input-container">
+            <input type="password" id="secretPasscodeField" placeholder="••••" autocomplete="off">
+        </div>
+        <button class="unlock-btn" onclick="checkSecretPassword()">Unlock ➔</button>
+        <div class="error-hint" id="lockErrorMsg">Wrong password, try again matching layout 🥺</div>
+    </div>
+
+    <div id="homeScreen" class="app-screen">
         <img class="main-hero-avatar" src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" onerror="this.src='https://placehold.co/150x150/2b1b23/ff4d79?text=%E2%9D%A4%EF%B8%8F'">
         <h1 class="main-welcome-title">Our Space ❤️</h1>
         <p class="main-subtitle" id="portalSubText">Welcome Home</p>
@@ -408,7 +486,7 @@
 
 <script>
 const SUPABASE_URL = "https://qawwahkvfibfvguboarm.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dhaGt2ZmliZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dhaGt2ZmliZnZndWJvYXJtIiwicm9sZSI6ImFub24iLAJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M";
 
 const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let presenceChannel = null;
@@ -436,6 +514,25 @@ const romanticPlaylist = [
 ];
 let currentTrackIndex = 0;
 const audioTrack = document.getElementById("bgMusic");
+
+// PASSWORD GATE MANAGER
+function checkSecretPassword() {
+    const inputField = document.getElementById("secretPasscodeField");
+    const errorEl = document.getElementById("lockErrorMsg");
+    
+    // Checks password exactly like your previous layout configurations
+    if (inputField.value === "0907") {
+        errorEl.style.display = "none";
+        navigateTo("homeScreen");
+        
+        // Start live sync trackers immediately upon unlocking
+        setupPresence();
+        loadNotes();
+    } else {
+        errorEl.style.display = "block";
+        inputField.value = "";
+    }
+}
 
 function navigateTo(screenId) {
     document.querySelectorAll('.app-screen').forEach(screen => screen.classList.remove('active'));
@@ -512,7 +609,7 @@ async function handleBubbleDoubleTap(messageId, currentTag) {
     }
 
     const { error } = await dbClient.from('messages').update({ tags: newTag }).eq('id', messageId);
-    if (error) loadNotes(); // Fallback update structure
+    if (error) loadNotes(); 
 }
 
 async function handleImageUpload(input) {
@@ -552,8 +649,9 @@ function handleTyping() {
     }, 1500);
 }
 
-// CONSTANT BACKGROUND ACTIVITY LOOP (FIXES ACCURACY JUMPS)
+// CONSTANT BACKGROUND ACTIVITY LOOP (HEARTBEAT)
 async function logMyPresence() {
+    if (document.getElementById("lockScreen").classList.contains("active")) return; 
     const rawRole = document.getElementById("roleSelector").value;
     await dbClient.from('user_status').upsert(
         { username: rawRole, last_active: new Date().toISOString() },
@@ -562,6 +660,7 @@ async function logMyPresence() {
 }
 
 async function fetchLastSeen() {
+    if (document.getElementById("lockScreen").classList.contains("active")) return;
     const currentIdentity = document.getElementById("roleSelector").value;
     const targetRole = currentIdentity === "queen" ? "king" : "queen";
     
@@ -633,6 +732,7 @@ function setupPresence() {
 }
 
 async function loadNotes() {
+    if (document.getElementById("lockScreen").classList.contains("active")) return;
     const space = document.getElementById("notesSpace");
     const { data, error } = await dbClient.from('messages').select('*').order('id', { ascending: true });
     if (error || !space) return;
@@ -722,6 +822,9 @@ function calculateDays() {
     document.getElementById("countdownBanner").innerText = `❤️ from that day: ${dayCount} days`;
 }
 
+// Event trigger for entering password with Enter key
+document.getElementById("secretPasscodeField").addEventListener("keypress", (e) => { if (e.key === "Enter") checkSecretPassword(); });
+
 document.getElementById("noteText").addEventListener("keypress", (e) => { 
     if (e.key === "Enter" && !e.shiftKey) { 
         e.preventDefault(); 
@@ -734,16 +837,14 @@ initAudioTrack();
 calculateDays();
 
 window.onload = () => {
-    setupPresence();
-    loadNotes();
-    
-    // Core engine loops: Runs background tracking updates
+    // Continuous sync systems kick off automatically after the password screen is unlocked
     setInterval(loadNotes, 4000);
     setInterval(updatePresenceUI, 4000);
     setInterval(fetchLastSeen, 5000);
-    setInterval(logMyPresence, 10000); // 10s database update heartbeat loop
+    setInterval(logMyPresence, 10000); 
 };
 </script>
 </body>
 </html>
-                               
+                        
+        

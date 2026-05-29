@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,12 +12,11 @@
             margin: 0;
         }
         
-        /* Fixed full-screen layout preventing mobile browser clipping */
         html, body {
             height: 100%;
             width: 100%;
             overflow: hidden;
-            background-color: #0d080b; /* Rich dark wine tone */
+            background-color: #0d080b;
         }
 
         body {
@@ -64,9 +63,13 @@
         }
         .status-container {
             display: flex;
+            flex-direction: column;
+            margin-top: 2px;
+        }
+        .status-row {
+            display: flex;
             align-items: center;
             gap: 6px;
-            margin-top: 2px;
         }
         .status-dot {
             width: 8px;
@@ -77,6 +80,11 @@
         .status-text {
             font-size: 0.78rem;
             color: #b5a4ab;
+        }
+        .last-seen-text {
+            font-size: 0.68rem;
+            color: #8a7680;
+            margin-top: 1px;
         }
         .status-container.online .status-dot { background-color: #00ff88; }
         .status-container.typing .status-dot {
@@ -114,6 +122,19 @@
             display: flex;
             align-items: center;
             gap: 4px;
+        }
+        .playlist-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .current-track-name {
+            font-size: 0.72rem;
+            color: #ffb3c6;
+            max-width: 90px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .music-mini-control {
             font-size: 0.75rem;
@@ -175,12 +196,12 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         .chat-row.sent .chat-bubble {
-            background: linear-gradient(135deg, #ff4d79, #ff2a5f); /* Rose Gradient */
+            background: linear-gradient(135deg, #ff4d79, #ff2a5f);
             color: white;
             border-bottom-right-radius: 4px;
         }
         .chat-row.received .chat-bubble {
-            background: #22161c; /* Soft Velvet */
+            background: #22161c;
             color: #f5f0f2;
             border-bottom-left-radius: 4px;
             border: 1px solid #33202a;
@@ -193,7 +214,6 @@
             margin-top: 6px;
             display: block;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         
         .sender-label {
@@ -223,11 +243,10 @@
             font-size: 0.75rem;
             padding: 2px 5px;
             border-radius: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .chat-row.received .bubble-heart-reaction { left: 12px; right: auto; }
 
-        /* --- PERFECTLY POSITIONED BOTTOM DOCK BAR --- */
+        /* --- SYSTEM BOX AND INPUT BAR --- */
         .chat-input-area {
             background: #16171b;
             padding: 12px 14px;
@@ -252,7 +271,6 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            transition: all 0.2s ease;
         }
         
         .chat-input-area textarea {
@@ -283,7 +301,6 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 2px 6px rgba(255,77,121,0.3);
         }
     </style>
 </head>
@@ -296,8 +313,11 @@
             <div class="header-titles">
                 <h2 id="partnerDisplayTitle">Partner</h2>
                 <div class="status-container offline" id="liveStatusBox">
-                    <div class="status-dot"></div>
-                    <span class="status-text" id="liveStatusTxt">offline</span>
+                    <div class="status-row">
+                        <div class="status-dot"></div>
+                        <span class="status-text" id="liveStatusTxt">offline</span>
+                    </div>
+                    <span class="last-seen-text" id="lastSeenDisplay"></span>
                 </div>
             </div>
         </div>
@@ -308,9 +328,12 @@
     </header>
 
     <div class="widgets-deck">
-        <!-- Input your special date below in the script to track days automatically -->
-        <div class="countdown-widget" id="countdownBanner">❤️ Days Together: --</div>
-        <div class="music-mini-control" id="musicBtn" onclick="toggleMusic()">🎵 Play Music</div>
+        <div class="countdown-widget" id="countdownBanner">❤️ from that day: -- days</div>
+        <div class="playlist-wrapper">
+            <span class="current-track-name" id="trackLabel">Aradhiya</span>
+            <button class="music-mini-control" id="musicBtn" onclick="toggleMusic()">🎵 Play</button>
+            <button class="music-mini-control" onclick="nextTrack()">⏭️ Next</button>
+        </div>
     </div>
 
     <div class="chat-container">
@@ -340,19 +363,38 @@ let typingTimeout = null;
 let sessionToken = "user_" + Math.random().toString(36).substring(5);
 let collectivePresence = {};
 
-// Change this date to your real anniversary date to see it count up!
-const ANNIVERSARY_DATE = new Date("2025-05-20"); 
-
+// --- MULTI-SONG PLAYLIST SETUP ---
+const romanticPlaylist = [
+    { title: "Aradhiya", url: "https://files.catbox.moe/w3v3hb.mp3" },
+    { title: "Kushi Title", url: "https://files.catbox.moe/9v8w9g.mp3" }, 
+    { title: "Na Roja Nuvve", url: "https://files.catbox.moe/q4p5n8.mp3" }
+];
+let currentTrackIndex = 0;
 const audioTrack = document.getElementById("bgMusic");
-audioTrack.src = "https://files.catbox.moe/w3v3hb.mp3";
+
+function initAudioTrack() {
+    audioTrack.src = romanticPlaylist[currentTrackIndex].url;
+    document.getElementById("trackLabel").innerText = romanticPlaylist[currentTrackIndex].title;
+}
 
 function toggleMusic() {
     if (audioTrack.paused) {
-        audioTrack.play();
+        audioTrack.play().catch(e => console.log("Audio play blocked until click interaction"));
         document.getElementById("musicBtn").innerText = "⏸️ Pause";
     } else {
         audioTrack.pause();
-        document.getElementById("musicBtn").innerText = "🎵 Play Music";
+        document.getElementById("musicBtn").innerText = "🎵 Play";
+    }
+}
+
+function nextTrack() {
+    currentTrackIndex = (currentTrackIndex + 1) % romanticPlaylist.length;
+    const wasPlaying = !audioTrack.paused;
+    initAudioTrack();
+    if (wasPlaying) {
+        audioTrack.play();
+    } else {
+        toggleMusic();
     }
 }
 
@@ -369,6 +411,7 @@ function changeIdentityRole() {
     loadIdentity();
     setupPresence();
     loadNotes();
+    fetchLastSeen();
 }
 
 async function handleImageUpload(input) {
@@ -383,7 +426,7 @@ async function handleImageUpload(input) {
     const { data, error } = await dbClient.storage.from('chat-media').upload(uniquePath, file);
 
     if (error) {
-        alert("Please ensure your storage bucket named 'chat-media' is created and set to Public in Supabase!");
+        alert("Upload failed. Verify storage bucket setup!");
         btn.disabled = false;
         return;
     }
@@ -408,9 +451,33 @@ function handleTyping() {
     }, 1500);
 }
 
+// --- DYNAMIC LAST SEEN DB UPDATE ---
+async function logMyPresence() {
+    const rawRole = document.getElementById("roleSelector").value;
+    await dbClient.from('user_status').upsert(
+        { username: rawRole, last_active: new Date().toISOString() },
+        { onConflict: 'username' }
+    );
+}
+
+async function fetchLastSeen() {
+    const targetRole = document.getElementById("roleSelector").value === "queen" ? "king" : "queen";
+    const { data, error } = await dbClient.from('user_status').select('last_active').eq('username', targetRole).single();
+    const displayEl = document.getElementById("lastSeenDisplay");
+    
+    if (data && data.last_active) {
+        const dateObj = new Date(data.last_active);
+        const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        displayEl.innerText = `last seen today at ${timeStr}`;
+    } else {
+        displayEl.innerText = "last seen recently";
+    }
+}
+
 function updatePresenceUI() {
     const statusBox = document.getElementById("liveStatusBox");
     const textEl = document.getElementById("liveStatusTxt");
+    const seenEl = document.getElementById("lastSeenDisplay");
     let online = false, typing = false;
 
     Object.keys(collectivePresence).forEach(token => {
@@ -426,12 +493,15 @@ function updatePresenceUI() {
     if (typing) {
         statusBox.className = "status-container typing";
         textEl.innerText = "typing...";
+        seenEl.style.display = "none";
     } else if (online) {
         statusBox.className = "status-container online";
         textEl.innerText = "online";
+        seenEl.style.display = "none";
     } else {
         statusBox.className = "status-container offline";
         textEl.innerText = "offline";
+        seenEl.style.display = "block";
     }
 }
 
@@ -444,7 +514,10 @@ function setupPresence() {
             updatePresenceUI();
         })
         .subscribe(async (status) => {
-            if (status === 'SUBSCRIBED') await presenceChannel.track({ name: myConfiguredName, typing: false });
+            if (status === 'SUBSCRIBED') {
+                await presenceChannel.track({ name: myConfiguredName, typing: false });
+                await logMyPresence();
+            }
         });
 }
 
@@ -523,6 +596,7 @@ async function saveNote() {
     input.value = "";
     await dbClient.from('messages').insert([{ author: myConfiguredName, text: txt }]);
     loadNotes();
+    await logMyPresence();
 }
 
 async function deleteMsg(id) {
@@ -532,26 +606,35 @@ async function deleteMsg(id) {
     }
 }
 
-function updateLoveTracker() {
+// --- AUTOMATIC 1-DAY ADDING TRACKER LOGIC ---
+function calculateDays() {
+    // Current date is May 29, 2026. Setting anchor to July 9, 2025 yields exactly 324 days today.
+    const startAnchor = new Date("2025-07-09T00:00:00");
     const today = new Date();
-    const diffTime = Math.abs(today - ANNIVERSARY_DATE);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    document.getElementById("countdownBanner").innerText = `❤️ Days Together: ${diffDays}`;
+    
+    const timeDiff = today.getTime() - startAnchor.getTime();
+    const dayCount = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    
+    document.getElementById("countdownBanner").innerText = `❤️ from that day: ${dayCount} days`;
 }
 
 document.getElementById("noteText").addEventListener("keypress", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveNote(); } });
 
 loadIdentity();
+initAudioTrack();
+
 window.onload = () => {
     setupPresence();
     loadNotes();
-    updateLoveTracker();
+    calculateDays();
+    fetchLastSeen();
     setInterval(loadNotes, 4000);
     setInterval(updatePresenceUI, 4000);
+    setInterval(fetchLastSeen, 10000);
 };
 </script>
 </body>
 </html>
-           
+                  
 
     

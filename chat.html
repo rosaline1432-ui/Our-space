@@ -1,4 +1,4 @@
-     <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -26,7 +26,6 @@
             flex-direction: column;
         }
 
-        /* --- ROMANTIC LUXE HEADER --- */
         header {
             background: #1a1015;
             padding: 12px 16px;
@@ -105,7 +104,6 @@
             cursor: pointer;
         }
 
-        /* --- LOVE JOURNEY DECK --- */
         .widgets-deck {
             background: #140c10;
             padding: 8px 16px;
@@ -147,7 +145,6 @@
             font-weight: 500;
         }
 
-        /* --- MAIN VIEWPORT CONTAINER --- */
         .chat-container {
             flex: 1;
             display: flex;
@@ -162,11 +159,10 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             -webkit-overflow-scrolling: touch;
         }
 
-        /* --- DATE TIMELINE --- */
         .date-separator {
             display: flex;
             justify-content: center;
@@ -181,8 +177,7 @@
             border: 1px solid #3d2230;
         }
 
-        /* --- ROMANTIC GRADIENT BUBBLES --- */
-        .chat-row { display: flex; width: 100%; }
+        .chat-row { display: flex; width: 100%; user-select: none; -webkit-user-select: none; }
         .chat-row.sent { justify-content: flex-end; }
         .chat-row.received { justify-content: flex-start; }
         
@@ -194,6 +189,7 @@
             line-height: 1.45;
             position: relative;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            touch-action: manipulation;
         }
         .chat-row.sent .chat-bubble {
             background: linear-gradient(135deg, #ff4d79, #ff2a5f);
@@ -236,17 +232,18 @@
 
         .bubble-heart-reaction {
             position: absolute;
-            bottom: -8px;
+            bottom: -9px;
             right: 12px;
             background: #1a1015;
             border: 1px solid #ff4d79;
-            font-size: 0.75rem;
-            padding: 2px 5px;
+            font-size: 0.8rem;
+            padding: 1px 5px;
             border-radius: 20px;
+            animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .chat-row.received .bubble-heart-reaction { left: 12px; right: auto; }
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
 
-        /* --- SYSTEM BOX AND INPUT BAR --- */
         .chat-input-area {
             background: #16171b;
             padding: 12px 14px;
@@ -329,7 +326,7 @@
     <div class="widgets-deck">
         <div class="countdown-widget" id="countdownBanner">❤️ from that day: -- days</div>
         <div class="playlist-wrapper">
-            <span class="current-track-name" id="trackLabel">Aradhiya</span>
+            <span class="current-track-name" id="trackLabel">Aradhiya. kushi💖</span>
             <button class="music-mini-control" id="musicBtn" onclick="toggleMusic()">🎵 Play</button>
             <button class="music-mini-control" onclick="nextTrack()">⏭️ Next</button>
         </div>
@@ -362,7 +359,6 @@ let typingTimeout = null;
 let sessionToken = "user_" + Math.random().toString(36).substring(5);
 let collectivePresence = {};
 
-// --- COMPLETE 12-TRACK PLAYLIST INSTALLED ---
 const romanticPlaylist = [
     { title: "Aradhiya. kushi💖", url: "https://files.catbox.moe/w3v3hb.mp3" },
     { title: "Innum konjam neram🖤", url: "https://files.catbox.moe/tq918f.mp3" },
@@ -392,7 +388,7 @@ function toggleMusic() {
     if (audioTrack.paused) {
         audioTrack.play().then(() => {
             document.getElementById("musicBtn").innerText = "⏸️ Pause";
-        }).catch(e => console.log("Audio trigger active"));
+        }).catch(e => console.log("Audio trigger ready"));
     } else {
         audioTrack.pause();
         document.getElementById("musicBtn").innerText = "🎵 Play";
@@ -586,14 +582,27 @@ async function loadNotes() {
         `;
     });
 
+    // --- ENHANCED TOUCH MOBILE DOUBLE TAP DETECTION ---
     data.forEach(msg => {
         const el = document.getElementById(`msg-${msg.id}`);
         if (!el) return;
-        let tapped = 0;
-        el.addEventListener('click', () => {
-            let now = Date.now();
-            if (now - tapped < 300) toggleHeart(msg.id, msg.tags);
-            tapped = now;
+        
+        let lastTap = 0;
+        el.addEventListener('touchend', function (e) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+                e.preventDefault();
+                toggleHeart(msg.id, msg.tags);
+            }
+            lastTap = currentTime;
+        });
+
+        // Desktop fallback click tracking
+        el.addEventListener('click', function (e) {
+            if (e.detail === 2) {
+                toggleHeart(msg.id, msg.tags);
+            }
         });
 
         let timer;
@@ -650,4 +659,6 @@ window.onload = () => {
 </script>
 </body>
 </html>
-                           
+                         
+    
+        

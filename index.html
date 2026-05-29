@@ -1,409 +1,749 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Space</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Our Space 👑❤️</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             box-sizing: border-box;
             padding: 0;
             margin: 0;
         }
-        body {
-            background-color: #120118;
-            color: white;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            position: relative;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
         
-        #heartsCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+        html, body {
             height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-        
-        header, .main-container, footer {
-            position: relative;
-            z-index: 1;
-        }
-
-        header {
-            text-align: center;
-            padding: 20px;
-            background: #1c1124;
             width: 100%;
-        }
-        header h1 {
-            font-size: 2rem;
-            letter-spacing: 2px;
+            overflow: hidden;
+            background-color: #0d080b;
+            color: #f5f0f2;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        .main-container {
-            display: flex;
+        /* --- SCREEN ANIMATION MANAGER --- */
+        .app-screen {
+            display: none;
+            height: 100%;
+            width: 100%;
             flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            flex-grow: 1;
-            padding: 20px;
-            width: 100%;
+            overflow: hidden;
+        }
+        .app-screen.active {
+            display: flex;
         }
 
-        .hero {
+        /* --- PORTAL HOMEPAGE STYLE --- */
+        #homeScreen {
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(180deg, #140c11 0%, #0d080b 100%);
+            padding: 24px;
             text-align: center;
-            margin-top: 10px;
-            margin-bottom: 25px;
         }
-        .hero img {
-            width: 90px;
-            height: 90px;
+        .main-hero-avatar {
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid white;
-            margin-bottom: 15px;
+            border: 3px solid #ff4d79;
+            box-shadow: 0 4px 20px rgba(255, 77, 121, 0.25);
+            margin-bottom: 16px;
         }
-        
-        /* Fixed text block styling to prevent system font boxes */
-        .hero h2 {
-            margin-bottom: 8px;
-            font-size: 1.6rem;
+        .main-welcome-title {
+            font-size: 1.8rem;
             font-weight: 700;
-            font-style: italic;
-            color: #ffffff;
-            text-shadow: 0 0 10px rgba(255, 77, 141, 0.4);
+            color: #fff;
+            margin-bottom: 4px;
         }
-        .hero p {
-            color: #ccc;
+        .main-subtitle {
+            font-size: 0.9rem;
+            color: #ffb3c6;
+            margin-bottom: 32px;
+            letter-spacing: 0.5px;
+        }
+        .home-countdown-box {
+            background: #1a1015;
+            border: 1px solid #2e1c25;
+            padding: 16px 24px;
+            border-radius: 24px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 40px;
+        }
+        .enter-space-btn {
+            background: linear-gradient(135deg, #ff4d79, #ff2a5f);
+            color: #fff;
+            border: none;
+            padding: 14px 44px;
             font-size: 1rem;
-            line-height: 1.4;
+            font-weight: 700;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 42, 95, 0.4);
         }
 
-        /* --- PLAYLIST JUKEBOX WIDGET --- */
-        .music-widget {
+        /* --- LIVE PREMIUM CHAT HEADER --- */
+        header {
+            background: #1a1015;
+            padding: 12px 16px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 15px;
-            background: rgba(42, 19, 55, 0.7);
-            border: 1px solid #461e5d;
-            padding: 12px 25px;
-            border-radius: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 340px;
-            transition: 0.3s ease;
+            align-items: center;
+            border-bottom: 1px solid #2e1c25;
+            flex-shrink: 0;
         }
-        .music-widget:hover {
-            border-color: #ff4d8d;
-            background: rgba(42, 19, 55, 0.9);
-        }
-        .music-clickable-area {
+        .header-left {
             display: flex;
             align-items: center;
             gap: 12px;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            color: #ff4d79;
+            font-size: 1.2rem;
             cursor: pointer;
-            flex-grow: 1;
-            overflow: hidden;
+            padding: 4px;
         }
-        .music-icon {
-            font-size: 1.4rem;
-            display: inline-block;
-            animation: spinDisc 3s linear infinite;
-            animation-play-state: paused;
-            flex-shrink: 0;
+        .header-profile-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ff4d79;
         }
-        .music-widget.playing .music-icon {
-            animation-play-state: running;
+        .header-titles h2 {
+            font-size: 1rem;
+            color: #fff;
+            font-weight: 600;
         }
-        .music-info {
+        .status-container {
             display: flex;
             flex-direction: column;
-            text-align: left;
-            overflow: hidden;
         }
-        .music-label {
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #fff;
-            white-space: nowrap;
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .song-title {
-            font-size: 0.75rem;
-            color: #ff4da6;
-            margin-top: 2px;
-            font-style: italic;
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #8e8e93;
+            transition: background-color 0.3s;
+        }
+        .status-text {
+            font-size: 0.78rem;
+            color: #b5a4ab;
+        }
+        .last-seen-text {
+            font-size: 0.68rem;
+            color: #a38f99;
+            margin-top: 1px;
+        }
+        .status-container.online .status-dot { background-color: #00ff88; }
+        .status-container.typing .status-dot {
+            background-color: #ff4d79;
+            animation: typingPulse 0.8s infinite alternate;
+        }
+        @keyframes typingPulse { 0% { opacity: 0.4; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
+
+        .role-badge-select {
+            background: #2b1b23;
+            border: 1px solid #4a303d;
+            color: #ffb3c6;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            outline: none;
+        }
+
+        /* --- CONTROL INFRASTRUCTURE REGION --- */
+        .widgets-deck {
+            background: #140c10;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #23151c;
+            flex-shrink: 0;
+        }
+        .countdown-widget {
+            font-size: 0.8rem;
+            color: #ffb3c6;
+            font-weight: 500;
+        }
+        .playlist-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .current-track-name {
+            font-size: 0.72rem;
+            color: #ffb3c6;
+            max-width: 90px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .next-song-btn {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 1.2rem;
+        .music-mini-control {
+            font-size: 0.75rem;
+            color: #ff4d79;
             cursor: pointer;
-            padding: 5px;
-            transition: 0.2s;
-            flex-shrink: 0;
-        }
-        .next-song-btn:hover {
-            color: #ff4d8d;
-            transform: scale(1.1);
-        }
-        @keyframes spinDisc {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            background: #25151e;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid #3d2230;
         }
 
-        /* --- FIXED PASSWORD BOX CONTAINER --- */
-        .secret-box {
-            background-color: #1f0e2c;
-            padding: 25px;
-            border-radius: 12px;
-            max-width: 360px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 80px;
+        /* --- MAIN VIEWPORT MESSAGES CONSOLE --- */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
         }
+        .messages-display {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .date-separator {
+            display: flex;
+            justify-content: center;
+            margin: 8px 0;
+        }
+        .date-badge {
+            background-color: #23151c;
+            color: #ffb3c6;
+            font-size: 0.72rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #3d2230;
+        }
+
+        .chat-row { display: flex; width: 100%; }
+        .chat-row.sent { justify-content: flex-end; }
+        .chat-row.received { justify-content: flex-start; }
         
-        input[type="password"] {
-            width: 100%;
-            padding: 14px;
-            margin-top: 5px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border: none;
-            outline: none;
-            font-size: 1rem;
-            background: white;
-            color: black;
-            text-align: center;
+        .chat-bubble {
+            max-width: 78%;
+            padding: 10px 14px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            line-height: 1.45;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .chat-row.sent .chat-bubble {
+            background: linear-gradient(135deg, #ff4d79, #ff2a5f);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-row.received .chat-bubble {
+            background: #22161c;
+            color: #f5f0f2;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #33202a;
+        }
+
+        .bubble-media-preview {
+            max-width: 100%;
+            max-height: 260px;
+            border-radius: 14px;
+            margin-top: 6px;
             display: block;
         }
         
-        #enterBtn {
-            width: 100%;
-            background-color: #ff4d8d;
+        .sender-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #ffb3c6;
+            margin-bottom: 3px;
+            display: block;
+        }
+        .chat-row.sent .sender-label { color: #ffe5ec; }
+
+        .timestamp {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.6);
+            float: right;
+            margin-top: 6px;
+            margin-left: 10px;
+        }
+        .chat-row.received .timestamp { color: #a5949c; }
+
+        .bubble-heart-reaction {
+            position: absolute;
+            bottom: -8px;
+            right: 12px;
+            background: #1a1015;
+            border: 1px solid #ff4d79;
+            font-size: 0.75rem;
+            padding: 2px 5px;
+            border-radius: 20px;
+            animation: popHeart 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .chat-row.received .bubble-heart-reaction { left: 12px; right: auto; }
+        @keyframes popHeart { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+
+        /* --- INPUT CONSOLE DECK --- */
+        .chat-input-area {
+            background: #16171b;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-top: 1px solid #222327;
+            flex-shrink: 0;
+        }
+        .attach-btn {
+            background: #2b1b23;
+            border: 1px solid #4a303d;
+            color: #ff4d79;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .chat-input-area textarea {
+            flex: 1;
+            background: #1f2024;
+            border: 1px solid #2c2d31;
+            border-radius: 22px;
+            padding: 10px 16px;
+            color: white;
+            font-size: 0.98rem;
+            resize: none;
+            height: 42px;
+            outline: none;
+            line-height: 1.3;
+        }
+        .send-btn {
+            background: linear-gradient(135deg, #ff4d79, #ff2a5f);
             color: white;
             border: none;
-            padding: 14px;
-            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             font-size: 1.1rem;
-            font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
-            display: block;
-        }
-        #enterBtn:hover {
-            background-color: #e0358d;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 40px 20px 80px 20px;
-            font-size: 0.9rem;
-            color: #888;
-            font-style: italic;
-            width: 100%;
-            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
     </style>
 </head>
 <body>
 
-    <canvas id="heartsCanvas"></canvas>
+    <div id="homeScreen" class="app-screen active">
+        <img class="main-hero-avatar" src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" onerror="this.src='https://placehold.co/150x150/2b1b23/ff4d79?text=%E2%9D%A4%EF%B8%8F'">
+        <h1 class="main-welcome-title">Our Space ❤️</h1>
+        <p class="main-subtitle" id="portalSubText">Welcome Home</p>
+        <div class="home-countdown-box" id="homeCounterDisplay">Counting days...</div>
+        <button class="enter-space-btn" onclick="navigateTo('chatScreen')">Enter Chat Space ➔</button>
+    </div>
 
-    <header>
-        <h1>V ❤️ R</h1>
-    </header>
-
-    <div class="main-container">
-        <div class="hero">
-            <img src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" />
-            <h2>Me V and My Queen R 💕</h2>
-            <p>Welcome to our private website.<br>For my Love, Who is close to my heart to my wife, My pondaati ❤️</p>
-        </div>
-
-        <div class="music-widget" id="musicControl">
-            <div class="music-clickable-area" onclick="toggleMusicWidget()">
-                <span class="music-icon" id="discIcon">🎵</span>
-                <div class="music-info">
-                    <span class="music-label" id="musicStatus">Tap to Play Music 🎧</span>
-                    <span class="song-title" id="currentTrackName">Song 1</span>
+    <div id="chatScreen" class="app-screen">
+        <header>
+            <div class="header-left">
+                <button class="back-btn" onclick="navigateTo('homeScreen')">◀</button>
+                <img class="header-profile-img" src="https://i.ibb.co/x8mH6Vj8/Screenshot-20260525-225554.jpg" onerror="this.src='https://placehold.co/100x100/2b1b23/ff4d79?text=%E2%9D%A4%EF%B8%8F'" />
+                <div class="header-titles">
+                    <h2 id="partnerDisplayTitle">Partner</h2>
+                    <div class="status-container offline" id="liveStatusBox">
+                        <div class="status-row">
+                            <div class="status-dot"></div>
+                            <span class="status-text" id="liveStatusTxt">offline</span>
+                        </div>
+                        <span class="last-seen-text" id="lastSeenDisplay">checking...</span>
+                    </div>
                 </div>
             </div>
-            <button class="next-song-btn" onclick="nextSong()" title="Next Song">⏭️</button>
+            <select class="role-badge-select" id="roleSelector" onchange="changeIdentityRole()">
+                <option value="king">King 👑</option>
+                <option value="queen">Queen 👑</option>
+            </select>
+        </header>
+
+        <div class="widgets-deck">
+            <div class="countdown-widget" id="countdownBanner">❤️ Days: --</div>
+            <div class="playlist-wrapper">
+                <span class="current-track-name" id="trackLabel">Loading...</span>
+                <button class="music-mini-control" id="musicBtn" onclick="toggleMusic()">🎵 Play</button>
+                <button class="music-mini-control" onclick="nextTrack()">⏭️ Next</button>
+            </div>
         </div>
 
-        <div class="secret-box">
-            <h3><strong>Private area👀</strong></h3>
-            <p style="font-style: italic; color: #aaa; margin-bottom: 15px; font-size: 0.9rem;">"Welcome to our dream Romantic and fantasy World."</p>
-            <input type="password" id="password" placeholder="Enter Password">
-            <button id="enterBtn" onclick="checkPassword()">Enter Room</button>
+        <div class="chat-container">
+            <div class="messages-display" id="notesSpace"></div>
+
+            <div class="chat-input-area">
+                <input type="file" id="mediaPicker" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
+                <button class="attach-btn" onclick="document.getElementById('mediaPicker').click()">📎</button>
+                
+                <textarea id="noteText" placeholder="Write a message..." oninput="handleTyping()"></textarea>
+                <button class="send-btn" id="postBtn" onclick="saveNote()">➔</button>
+            </div>
         </div>
     </div>
 
     <audio id="bgMusic" loop preload="auto" crossorigin="anonymous"></audio>
 
-    <footer>
-        Made for us our secret thing. For my Queen and Me..... 🖤
-    </footer>
-
 <script>
-const music = document.getElementById("bgMusic");
-const widget = document.getElementById("musicControl");
-const label = document.getElementById("musicStatus");
-const trackNameDisplay = document.getElementById("currentTrackName");
+const SUPABASE_URL = "https://qawwahkvfibfvguboarm.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dhaGt2ZmliZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M";
 
-const playlist = [
-    {
-        title: "Aradhiya. kushi💖",
-        url: "https://files.catbox.moe/w3v3hb.mp3"
-    },
-    {
-        title: "Innum konjam neram🖤",
-        url: "https://files.catbox.moe/tq918f.mp3"
-    },
-    {
-        title: "Kannadi poove👀",
-        url: "https://files.catbox.moe/kfv1no.mp3"
-    },
-    {
-        title: "Naan aval illai💌",
-        url: "https://files.catbox.moe/n32y87.mp3"
-    },
-    {
-        title: "Nallaru Po.....🥺",
-        url: "https://files.catbox.moe/4qaj0i.mp3"
-    },
-    {
-        title: "Neethanae.....Neethanae....🩷",
-        url: "https://files.catbox.moe/8qrykc.mp3"
-    },
-    {
-        title: "Neeyum naanum anbe💗",
-        url: "https://files.catbox.moe/fth0q7.mp3"
-    },
-    {
-        title: "oh penne💘",
-        url: "https://files.catbox.moe/j8nlue.mp3"
-    },
-    {
-        title: "Oxygen🤍",
-        url: "https://files.catbox.moe/u140jk.mp3"
-    },
-    {
-        title: "Velica poove....❤️‍🩹",
-        url: "https://files.catbox.moe/4r721k.mp3"
-    },
-    {
-        title: "venmathiyae..🥺",
-        url: "https://files.catbox.moe/kq5s3n.mp3"
-    },
-    {
-        title: "Yendi vittu pona..🥺💔",
-        url: "https://files.catbox.moe/9rthr7.mp3"
-    }
+const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let presenceChannel = null;
+let myConfiguredName = "King";
+let partnerConfiguredName = "Queen";
+let isTypingState = false;
+let typingTimeout = null;
+let sessionToken = "user_" + Math.random().toString(36).substring(5);
+let collectivePresence = {};
+
+// 12 COMPLETE CATBOX AUDIOS INSTALLED
+const romanticPlaylist = [
+    { title: "Aradhiya. kushi💖", url: "https://files.catbox.moe/w3v3hb.mp3" },
+    { title: "Innum konjam neram🖤", url: "https://files.catbox.moe/tq918f.mp3" },
+    { title: "Kannadi poove👀", url: "https://files.catbox.moe/kfv1no.mp3" },
+    { title: "Naan aval illai💌", url: "https://files.catbox.moe/n32y87.mp3" },
+    { title: "Nallaru Po.....🥺", url: "https://files.catbox.moe/4qaj0i.mp3" },
+    { title: "Neethanae.....Neethanae....🩷", url: "https://files.catbox.moe/8qrykc.mp3" },
+    { title: "Neeyum naanum anbe💗", url: "https://files.catbox.moe/fth0q7.mp3" },
+    { title: "oh penne💘", url: "https://files.catbox.moe/j8nlue.mp3" },
+    { title: "Oxygen🤍", url: "https://files.catbox.moe/u140jk.mp3" },
+    { title: "Velica poove....❤️‍🩹", url: "https://files.catbox.moe/4r721k.mp3" },
+    { title: "venmathiyae..🥺", url: "https://files.catbox.moe/kq5s3n.mp3" },
+    { title: "Yendi vittu pona..🥺💔", url: "https://files.catbox.moe/9rthr7.mp3" }
 ];
-
 let currentTrackIndex = 0;
+const audioTrack = document.getElementById("bgMusic");
 
-function loadTrack(index) {
-    music.src = playlist[index].url;
-    trackNameDisplay.innerText = playlist[index].title;
-}
-loadTrack(currentTrackIndex);
-
-function toggleMusicWidget() {
-    if (music.paused) {
-        music.play().then(() => {
-            widget.classList.add("playing");
-            label.innerText = "Playing Music 💖";
-        }).catch(err => { 
-            label.innerText = "Error: Tap again 🎧"; 
-            console.error(err);
-        });
-    } else {
-        music.pause();
-        widget.classList.remove("playing");
-        label.innerText = "Music: Paused ⏸️";
+function navigateTo(screenId) {
+    document.querySelectorAll('.app-screen').forEach(screen => screen.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    if(screenId === 'chatScreen') {
+        const space = document.getElementById("notesSpace");
+        setTimeout(() => { space.scrollTop = space.scrollHeight; }, 100);
     }
 }
 
-function nextSong() {
-    currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-    const wasPlaying = !music.paused;
-    loadTrack(currentTrackIndex);
+function initAudioTrack() {
+    audioTrack.pause();
+    audioTrack.src = romanticPlaylist[currentTrackIndex].url;
+    audioTrack.load(); 
+    document.getElementById("trackLabel").innerText = romanticPlaylist[currentTrackIndex].title;
+}
+
+function toggleMusic() {
+    if (audioTrack.paused) {
+        audioTrack.play().then(() => {
+            document.getElementById("musicBtn").innerText = "⏸️ Pause";
+        }).catch(e => console.log("Audio kickstart ready"));
+    } else {
+        audioTrack.pause();
+        document.getElementById("musicBtn").innerText = "🎵 Play";
+    }
+}
+
+function nextTrack() {
+    currentTrackIndex = (currentTrackIndex + 1) % romanticPlaylist.length;
+    initAudioTrack();
+    audioTrack.play().then(() => {
+        document.getElementById("musicBtn").innerText = "⏸️ Pause";
+    }).catch(() => {
+        document.getElementById("musicBtn").innerText = "🎵 Play";
+    });
+}
+
+function loadIdentity() {
+    let saved = localStorage.getItem("chat_user_role") || "king";
+    document.getElementById("roleSelector").value = saved;
+    myConfiguredName = saved === "queen" ? "Queen" : "King";
+    partnerConfiguredName = saved === "queen" ? "King" : "Queen";
     
-    if (wasPlaying) {
-        music.play().then(() => {
-            widget.classList.add("playing");
-            label.innerText = "Playing Music 💖";
-        });
-    }
+    document.getElementById("partnerDisplayTitle").innerText = partnerConfiguredName;
+    document.getElementById("portalSubText").innerText = `Welcome Back, ${myConfiguredName} ✨`;
 }
 
-function checkPassword(){
-    const password = document.getElementById("password").value;
-    if(password === "visha27112011"){
-        window.location.href = "chat.html";
+function changeIdentityRole() {
+    localStorage.setItem("chat_user_role", document.getElementById("roleSelector").value);
+    loadIdentity();
+    setupPresence();
+    loadNotes();
+    fetchLastSeen();
+}
+
+// INSTANT PRE-RENDER DOUBLE-TAP REACTION SYSTEM
+async function handleBubbleDoubleTap(messageId, currentTag) {
+    const bubbleElement = document.getElementById(`msg-${messageId}`);
+    if (!bubbleElement) return;
+
+    const newTag = currentTag === "loved" ? null : "loved";
+    let heartEl = bubbleElement.querySelector('.bubble-heart-reaction');
+    
+    if (newTag === "loved") {
+        if (!heartEl) {
+            const tempHeart = document.createElement('span');
+            tempHeart.className = 'bubble-heart-reaction';
+            tempHeart.innerText = '❤️';
+            bubbleElement.appendChild(tempHeart);
+        }
     } else {
-        alert("Wrong Password");
+        if (heartEl) heartEl.remove();
+    }
+
+    const { error } = await dbClient.from('messages').update({ tags: newTag }).eq('id', messageId);
+    if (error) loadNotes(); // Fallback update structure
+}
+
+async function handleImageUpload(input) {
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    const btn = document.getElementById("postBtn");
+    btn.disabled = true;
+
+    const ext = file.name.split('.').pop();
+    const uniquePath = `${Date.now()}_${Math.random().toString(36).substring(5)}.${ext}`;
+
+    const { data, error } = await dbClient.storage.from('chat-media').upload(uniquePath, file);
+    if (error) {
+        alert("Verify storage bucket exists!");
+        btn.disabled = false;
+        return;
+    }
+
+    const { data: urlObj } = dbClient.storage.from('chat-media').getPublicUrl(uniquePath);
+    await dbClient.from('messages').insert([{ author: myConfiguredName, text: urlObj.publicUrl }]);
+    
+    input.value = "";
+    btn.disabled = false;
+    loadNotes();
+}
+
+// REALTIME TYPING SYSTEM
+function handleTyping() {
+    if (!isTypingState) {
+        isTypingState = true;
+        if (presenceChannel) presenceChannel.track({ name: myConfiguredName, typing: true });
+    }
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+        isTypingState = false;
+        if (presenceChannel) presenceChannel.track({ name: myConfiguredName, typing: false });
+    }, 1500);
+}
+
+// CONSTANT BACKGROUND ACTIVITY LOOP (FIXES ACCURACY JUMPS)
+async function logMyPresence() {
+    const rawRole = document.getElementById("roleSelector").value;
+    await dbClient.from('user_status').upsert(
+        { username: rawRole, last_active: new Date().toISOString() },
+        { onConflict: 'username' }
+    );
+}
+
+async function fetchLastSeen() {
+    const currentIdentity = document.getElementById("roleSelector").value;
+    const targetRole = currentIdentity === "queen" ? "king" : "queen";
+    
+    const { data, error } = await dbClient.from('user_status').select('last_active').eq('username', targetRole).maybeSingle();
+    const displayEl = document.getElementById("lastSeenDisplay");
+    
+    if (data && data.last_active) {
+        const dateObj = new Date(data.last_active);
+        const today = new Date();
+        
+        let dayLabel = "today at ";
+        if (dateObj.toDateString() !== today.toDateString()) {
+            dayLabel = dateObj.toLocaleDateString([], {month:'short', day:'numeric'}) + " at ";
+        }
+        
+        const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        displayEl.innerText = `last seen ${dayLabel}${timeStr}`;
+    } else {
+        displayEl.innerText = "last seen recently";
     }
 }
 
-document.getElementById("password").addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-        checkPassword();
+function updatePresenceUI() {
+    const statusBox = document.getElementById("liveStatusBox");
+    const textEl = document.getElementById("liveStatusTxt");
+    const seenEl = document.getElementById("lastSeenDisplay");
+    let online = false, typing = false;
+
+    Object.keys(collectivePresence).forEach(token => {
+        if (token !== sessionToken) {
+            const state = collectivePresence[token];
+            if (state && state[0] && state[0].name.toLowerCase() === partnerConfiguredName.toLowerCase()) {
+                online = true;
+                if (state[0].typing) typing = true;
+            }
+        }
+    });
+
+    if (typing) {
+        statusBox.className = "status-container typing";
+        textEl.innerText = "typing...";
+        seenEl.style.display = "none";
+    } else if (online) {
+        statusBox.className = "status-container online";
+        textEl.innerText = "online";
+        seenEl.style.display = "none";
+    } else {
+        statusBox.className = "status-container offline";
+        textEl.innerText = "offline";
+        seenEl.style.display = "block";
     }
+}
+
+function setupPresence() {
+    if (presenceChannel) presenceChannel.unsubscribe();
+    presenceChannel = dbClient.channel('presence-deck', { config: { presence: { key: sessionToken } } });
+    presenceChannel
+        .on('presence', { event: 'sync' }, () => {
+            collectivePresence = presenceChannel.presenceState();
+            updatePresenceUI();
+        })
+        .subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+                await presenceChannel.track({ name: myConfiguredName, typing: false });
+                await logMyPresence();
+                fetchLastSeen();
+            }
+        });
+}
+
+async function loadNotes() {
+    const space = document.getElementById("notesSpace");
+    const { data, error } = await dbClient.from('messages').select('*').order('id', { ascending: true });
+    if (error || !space) return;
+
+    const scrollCheck = space.scrollHeight - space.scrollTop <= space.clientHeight + 200;
+    space.innerHTML = "";
+    let lastGroupDate = "";
+
+    data.forEach(msg => {
+        const dateObj = msg.created_at ? new Date(msg.created_at) : new Date();
+        const groupDate = dateObj.toDateString();
+
+        if (groupDate !== lastGroupDate) {
+            space.innerHTML += `<div class="date-separator"><span class="date-badge">${dateObj.toLocaleDateString([], {month:'short', day:'numeric'})}</span></div>`;
+            lastGroupDate = groupDate;
+        }
+
+        let msgAuthor = msg.author ? msg.author.trim() : "King";
+        if (msgAuthor.toLowerCase() === "parker") msgAuthor = "King";
+
+        const isMe = msgAuthor.toLowerCase() === myConfiguredName.toLowerCase();
+        const side = isMe ? "sent" : "received";
+        const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        const heart = msg.tags === "loved" ? `<span class="bubble-heart-reaction">❤️</span>` : '';
+
+        let content = `<span>${msg.text}</span>`;
+        if (msg.text.match(/\.(jpeg|jpg|gif|png)/i) || msg.text.includes("/storage/v1/object/public/")) {
+            content = `<img class="bubble-media-preview" src="${msg.text}" onclick="window.open('${msg.text}', '_blank')" />`;
+        }
+
+        space.innerHTML += `
+            <div class="chat-row ${side}">
+                <div class="chat-bubble" id="msg-${msg.id}">
+                    <span class="sender-label">${msgAuthor}</span>
+                    ${content}
+                    <span class="timestamp">${timeStr}</span>
+                    ${heart}
+                </div>
+            </div>
+        `;
+    });
+
+    data.forEach(msg => {
+        const el = document.getElementById(`msg-${msg.id}`);
+        if (!el) return;
+        
+        let lastTap = 0;
+        el.addEventListener('click', (e) => {
+            if(e.target.tagName === 'IMG') return;
+            const now = Date.now();
+            if (now - lastTap < 300) handleBubbleDoubleTap(msg.id, msg.tags);
+            lastTap = now;
+        });
+
+        let timer;
+        el.addEventListener('touchstart', () => timer = setTimeout(() => deleteMsg(msg.id), 1000));
+        el.addEventListener('touchend', () => clearTimeout(timer));
+    });
+
+    if (scrollCheck) space.scrollTop = space.scrollHeight;
+}
+
+async function saveNote() {
+    const input = document.getElementById("noteText");
+    const txt = input.value.trim();
+    if (!txt) return;
+    input.value = "";
+    await dbClient.from('messages').insert([{ author: myConfiguredName, text: txt }]);
+    loadNotes();
+    await logMyPresence();
+}
+
+async function deleteMsg(id) {
+    if (confirm("Delete this message?")) {
+        await dbClient.from('messages').delete().eq('id', id);
+        loadNotes();
+    }
+}
+
+function calculateDays() {
+    const startAnchor = new Date("2025-07-09T00:00:00");
+    const today = new Date();
+    const timeDiff = today.getTime() - startAnchor.getTime();
+    const dayCount = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    
+    document.getElementById("homeCounterDisplay").innerText = `❤️ we have traveled ${dayCount} days together`;
+    document.getElementById("countdownBanner").innerText = `❤️ from that day: ${dayCount} days`;
+}
+
+document.getElementById("noteText").addEventListener("keypress", (e) => { 
+    if (e.key === "Enter" && !e.shiftKey) { 
+        e.preventDefault(); 
+        saveNote(); 
+    } 
 });
 
-const canvas = document.getElementById("heartsCanvas");
-const ctx = canvas.getContext("2d");
-let totalHearts = 25;
-let heartsArray = [];
+loadIdentity();
+initAudioTrack();
+calculateDays();
 
-function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
-class FloatingHeart {
-    constructor() { this.reset(); this.y = Math.random() * canvas.height; }
-    reset() {
-        this.x = Math.random() * canvas.width; this.y = canvas.height + 20;
-        this.size = Math.random() * 8 + 5; this.speedY = Math.random() * 0.6 + 0.3;
-        this.opacity = Math.random() * 0.4 + 0.1; this.hue = [330, 300, 280][Math.floor(Math.random() * 3)];
-    }
-    update() { this.y -= this.speedY; if (this.y < -20) this.reset(); }
-    draw() {
-        ctx.save(); ctx.globalAlpha = this.opacity; ctx.fillStyle = `hsl(${this.hue}, 100%, 65%)`;
-        ctx.beginPath(); ctx.moveTo(this.x, this.y);
-        ctx.bezierCurveTo(this.x - this.size/2, this.y - this.size/2, this.x - this.size, this.y + this.size/3, this.x, this.y + this.size * 0.9);
-        ctx.bezierCurveTo(this.x + this.size, this.y + this.size/3, this.x + this.size/2, this.y - this.size/2, this.x, this.y);
-        ctx.fill(); ctx.restore();
-    }
-}
-function initHearts() { for (let i = 0; i < totalHearts; i++) heartsArray.push(new FloatingHeart()); }
-function animateHearts() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < heartsArray.length; i++) { heartsArray[i].update(); heartsArray[i].draw(); }
-    requestAnimationFrame(animateHearts);
-}
-initHearts(); animateHearts();
+window.onload = () => {
+    setupPresence();
+    loadNotes();
+    
+    // Core engine loops: Runs background tracking updates
+    setInterval(loadNotes, 4000);
+    setInterval(updatePresenceUI, 4000);
+    setInterval(fetchLastSeen, 5000);
+    setInterval(logMyPresence, 10000); // 10s database update heartbeat loop
+};
 </script>
 </body>
 </html>
-                    
+                               

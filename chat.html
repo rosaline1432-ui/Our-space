@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+     <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -83,7 +83,7 @@
         }
         .last-seen-text {
             font-size: 0.68rem;
-            color: #8a7680;
+            color: #a38f99;
             margin-top: 1px;
         }
         .status-container.online .status-dot { background-color: #00ff88; }
@@ -255,7 +255,6 @@
             gap: 12px;
             border-top: 1px solid #222327;
             flex-shrink: 0;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
         }
         
         .attach-btn {
@@ -317,7 +316,7 @@
                         <div class="status-dot"></div>
                         <span class="status-text" id="liveStatusTxt">offline</span>
                     </div>
-                    <span class="last-seen-text" id="lastSeenDisplay"></span>
+                    <span class="last-seen-text" id="lastSeenDisplay">checking...</span>
                 </div>
             </div>
         </div>
@@ -363,24 +362,37 @@ let typingTimeout = null;
 let sessionToken = "user_" + Math.random().toString(36).substring(5);
 let collectivePresence = {};
 
-// --- MULTI-SONG PLAYLIST SETUP ---
+// --- COMPLETE 12-TRACK PLAYLIST INSTALLED ---
 const romanticPlaylist = [
-    { title: "Aradhiya", url: "https://files.catbox.moe/w3v3hb.mp3" },
-    { title: "Kushi Title", url: "https://files.catbox.moe/9v8w9g.mp3" }, 
-    { title: "Na Roja Nuvve", url: "https://files.catbox.moe/q4p5n8.mp3" }
+    { title: "Aradhiya. kushi💖", url: "https://files.catbox.moe/w3v3hb.mp3" },
+    { title: "Innum konjam neram🖤", url: "https://files.catbox.moe/tq918f.mp3" },
+    { title: "Kannadi poove👀", url: "https://files.catbox.moe/kfv1no.mp3" },
+    { title: "Naan aval illai💌", url: "https://files.catbox.moe/n32y87.mp3" },
+    { title: "Nallaru Po.....🥺", url: "https://files.catbox.moe/4qaj0i.mp3" },
+    { title: "Neethanae.....Neethanae....🩷", url: "https://files.catbox.moe/8qrykc.mp3" },
+    { title: "Neeyum naanum anbe💗", url: "https://files.catbox.moe/fth0q7.mp3" },
+    { title: "oh penne💘", url: "https://files.catbox.moe/j8nlue.mp3" },
+    { title: "Oxygen🤍", url: "https://files.catbox.moe/u140jk.mp3" },
+    { title: "Velica poove....❤️‍🩹", url: "https://files.catbox.moe/4r721k.mp3" },
+    { title: "venmathiyae..🥺", url: "https://files.catbox.moe/kq5s3n.mp3" },
+    { title: "Yendi vittu pona..🥺💔", url: "https://files.catbox.moe/9rthr7.mp3" }
 ];
+
 let currentTrackIndex = 0;
 const audioTrack = document.getElementById("bgMusic");
 
 function initAudioTrack() {
+    audioTrack.pause();
     audioTrack.src = romanticPlaylist[currentTrackIndex].url;
+    audioTrack.load(); 
     document.getElementById("trackLabel").innerText = romanticPlaylist[currentTrackIndex].title;
 }
 
 function toggleMusic() {
     if (audioTrack.paused) {
-        audioTrack.play().catch(e => console.log("Audio play blocked until click interaction"));
-        document.getElementById("musicBtn").innerText = "⏸️ Pause";
+        audioTrack.play().then(() => {
+            document.getElementById("musicBtn").innerText = "⏸️ Pause";
+        }).catch(e => console.log("Audio trigger active"));
     } else {
         audioTrack.pause();
         document.getElementById("musicBtn").innerText = "🎵 Play";
@@ -389,13 +401,12 @@ function toggleMusic() {
 
 function nextTrack() {
     currentTrackIndex = (currentTrackIndex + 1) % romanticPlaylist.length;
-    const wasPlaying = !audioTrack.paused;
     initAudioTrack();
-    if (wasPlaying) {
-        audioTrack.play();
-    } else {
-        toggleMusic();
-    }
+    audioTrack.play().then(() => {
+        document.getElementById("musicBtn").innerText = "⏸️ Pause";
+    }).catch(() => {
+        document.getElementById("musicBtn").innerText = "🎵 Play";
+    });
 }
 
 function loadIdentity() {
@@ -424,9 +435,8 @@ async function handleImageUpload(input) {
     const uniquePath = `${Date.now()}_${Math.random().toString(36).substring(5)}.${ext}`;
 
     const { data, error } = await dbClient.storage.from('chat-media').upload(uniquePath, file);
-
     if (error) {
-        alert("Upload failed. Verify storage bucket setup!");
+        alert("Verify storage setup!");
         btn.disabled = false;
         return;
     }
@@ -451,7 +461,6 @@ function handleTyping() {
     }, 1500);
 }
 
-// --- DYNAMIC LAST SEEN DB UPDATE ---
 async function logMyPresence() {
     const rawRole = document.getElementById("roleSelector").value;
     await dbClient.from('user_status').upsert(
@@ -461,14 +470,23 @@ async function logMyPresence() {
 }
 
 async function fetchLastSeen() {
-    const targetRole = document.getElementById("roleSelector").value === "queen" ? "king" : "queen";
-    const { data, error } = await dbClient.from('user_status').select('last_active').eq('username', targetRole).single();
+    const currentIdentity = document.getElementById("roleSelector").value;
+    const targetRole = currentIdentity === "queen" ? "king" : "queen";
+    
+    const { data, error } = await dbClient.from('user_status').select('last_active').eq('username', targetRole).maybeSingle();
     const displayEl = document.getElementById("lastSeenDisplay");
     
     if (data && data.last_active) {
         const dateObj = new Date(data.last_active);
+        const today = new Date();
+        
+        let dayLabel = "today at ";
+        if (dateObj.toDateString() !== today.toDateString()) {
+            dayLabel = dateObj.toLocaleDateString([], {month:'short', day:'numeric'}) + " at ";
+        }
+        
         const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-        displayEl.innerText = `last seen today at ${timeStr}`;
+        displayEl.innerText = `last seen ${dayLabel}${timeStr}`;
     } else {
         displayEl.innerText = "last seen recently";
     }
@@ -498,6 +516,7 @@ function updatePresenceUI() {
         statusBox.className = "status-container online";
         textEl.innerText = "online";
         seenEl.style.display = "none";
+        logMyPresence(); 
     } else {
         statusBox.className = "status-container offline";
         textEl.innerText = "offline";
@@ -517,6 +536,7 @@ function setupPresence() {
             if (status === 'SUBSCRIBED') {
                 await presenceChannel.track({ name: myConfiguredName, typing: false });
                 await logMyPresence();
+                fetchLastSeen();
             }
         });
 }
@@ -600,21 +620,17 @@ async function saveNote() {
 }
 
 async function deleteMsg(id) {
-    if (confirm("Delete this sweet message?")) {
+    if (confirm("Delete this message?")) {
         await dbClient.from('messages').delete().eq('id', id);
         loadNotes();
     }
 }
 
-// --- AUTOMATIC 1-DAY ADDING TRACKER LOGIC ---
 function calculateDays() {
-    // Current date is May 29, 2026. Setting anchor to July 9, 2025 yields exactly 324 days today.
     const startAnchor = new Date("2025-07-09T00:00:00");
     const today = new Date();
-    
     const timeDiff = today.getTime() - startAnchor.getTime();
     const dayCount = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    
     document.getElementById("countdownBanner").innerText = `❤️ from that day: ${dayCount} days`;
 }
 
@@ -627,14 +643,11 @@ window.onload = () => {
     setupPresence();
     loadNotes();
     calculateDays();
-    fetchLastSeen();
     setInterval(loadNotes, 4000);
     setInterval(updatePresenceUI, 4000);
-    setInterval(fetchLastSeen, 10000);
+    setInterval(fetchLastSeen, 5000);
 };
 </script>
 </body>
 </html>
-                  
-
-    
+                           

@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -471,7 +471,8 @@ async function fetchPartnerLastSeenFromDB(partnerNameClean) {
 
     if (!error && data && data.last_seen) {
         let timeObj = new Date(data.last_seen);
-        let timeString = timeObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        // Changed to 24-hour clock formatting (Railway Time)
+        let timeString = timeObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
         let today = new Date();
         
         if (timeObj.toDateString() === today.toDateString()) {
@@ -575,7 +576,6 @@ async function loadNotes() {
         const timeSource = note.created_at ? new Date(note.created_at) : new Date();
         const currentDateString = timeSource.toDateString();
 
-        // Inject centered WhatsApp-style Date Badge when a new day starts
         if (currentDateString !== lastRenderedDateString) {
             const separatorDiv = document.createElement("div");
             separatorDiv.className = "date-separator";
@@ -602,7 +602,8 @@ async function loadNotes() {
         
         let formattedBubbleTime = "";
         try {
-            formattedBubbleTime = timeSource.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+            // Changed to 24-hour clock formatting (Railway Time)
+            formattedBubbleTime = timeSource.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
         } catch(e) { formattedBubbleTime = "--:--"; }
         
         chatRow.innerHTML = `
@@ -705,6 +706,4 @@ initHearts(); animateHearts();
 </script>
 </body>
 </html>
-                    
-        
-        
+                          

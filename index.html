@@ -486,8 +486,17 @@
     <audio id="bgMusic" loop preload="auto" crossorigin="anonymous"></audio>
 
 <script>
-const SUPABASE_URL = "https://qawwahkvfibfvguboarm.supabase.co";
+const SUPABASE_URL = "https://qawwahkvfibfvguboarm.supabase.co/rest/v1/";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhd3dhaGt2ZmliZnZndWJvYXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4MTY2ODgsImV4cCI6MjA5NTM5MjY4OH0.qXy5KdAcW4AyIKR9eLWdXdLfhGFEKyDYaML9k0AFL2M";
+
+// This tells the app to actively listen for incoming data live!
+const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  realtime: {
+    params: {
+      eventsPerSecond: 10
+    }
+  }
+});
 
 const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let presenceChannel = null;

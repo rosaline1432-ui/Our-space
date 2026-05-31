@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -330,6 +330,7 @@
             border-radius: 14px;
             margin-top: 6px;
             display: block;
+            cursor: pointer;
         }
         
         .sender-label {
@@ -490,6 +491,7 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let presenceChannel = null;
+let messagesRealtimeChannel = null;
 let myConfiguredName = "King";
 let partnerConfiguredName = "Queen";
 let isTypingState = false;
@@ -497,7 +499,6 @@ let typingTimeout = null;
 let sessionToken = "user_" + Math.random().toString(36).substring(5);
 let collectivePresence = {};
 
-// 12 COMPLETE CATBOX AUDIOS INSTALLED
 const romanticPlaylist = [
     { title: "Aradhiya. kushi💖", url: "https://files.catbox.moe/w3v3hb.mp3" },
     { title: "Innum konjam neram🖤", url: "https://files.catbox.moe/tq918f.mp3" },
@@ -515,18 +516,16 @@ const romanticPlaylist = [
 let currentTrackIndex = 0;
 const audioTrack = document.getElementById("bgMusic");
 
-// PASSWORD GATE MANAGER
 function checkSecretPassword() {
     const inputField = document.getElementById("secretPasscodeField");
     const errorEl = document.getElementById("lockErrorMsg");
     
-    // Checks password exactly like your previous layout configurations
     if (inputField.value === "visha27112011") {
         errorEl.style.display = "none";
         navigateTo("homeScreen");
         
-        // Start live sync trackers immediately upon unlocking
         setupPresence();
+        initMessagesRealtime();
         loadNotes();
     } else {
         errorEl.style.display = "block";
@@ -589,7 +588,6 @@ function changeIdentityRole() {
     fetchLastSeen();
 }
 
-// INSTANT PRE-RENDER DOUBLE-TAP REACTION SYSTEM
 async function handleBubbleDoubleTap(messageId, currentTag) {
     const bubbleElement = document.getElementById(`msg-${messageId}`);
     if (!bubbleElement) return;
@@ -608,8 +606,7 @@ async function handleBubbleDoubleTap(messageId, currentTag) {
         if (heartEl) heartEl.remove();
     }
 
-    const { error } = await dbClient.from('messages').update({ tags: newTag }).eq('id', messageId);
-    if (error) loadNotes(); 
+    await dbClient.from('messages').update({ tags: newTag }).eq('id', messageId);
 }
 
 async function handleImageUpload(input) {
@@ -623,7 +620,7 @@ async function handleImageUpload(input) {
 
     const { data, error } = await dbClient.storage.from('chat-media').upload(uniquePath, file);
     if (error) {
-        alert("Verify storage bucket exists!");
+        alert("Upload error! Make sure your bucket RLS policy run was completed.");
         btn.disabled = false;
         return;
     }
@@ -633,10 +630,8 @@ async function handleImageUpload(input) {
     
     input.value = "";
     btn.disabled = false;
-    loadNotes();
 }
 
-// REALTIME TYPING SYSTEM
 function handleTyping() {
     if (!isTypingState) {
         isTypingState = true;
@@ -649,7 +644,6 @@ function handleTyping() {
     }, 1500);
 }
 
-// CONSTANT BACKGROUND ACTIVITY LOOP (HEARTBEAT)
 async function logMyPresence() {
     if (document.getElementById("lockScreen").classList.contains("active")) return; 
     const rawRole = document.getElementById("roleSelector").value;
@@ -731,6 +725,17 @@ function setupPresence() {
         });
 }
 
+function initMessagesRealtime() {
+    if (messagesRealtimeChannel) messagesRealtimeChannel.unsubscribe();
+    
+    messagesRealtimeChannel = dbClient
+        .channel('schema-db-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
+            loadNotes();
+        })
+        .subscribe();
+}
+
 async function loadNotes() {
     if (document.getElementById("lockScreen").classList.contains("active")) return;
     const space = document.getElementById("notesSpace");
@@ -801,14 +806,12 @@ async function saveNote() {
     if (!txt) return;
     input.value = "";
     await dbClient.from('messages').insert([{ author: myConfiguredName, text: txt }]);
-    loadNotes();
     await logMyPresence();
 }
 
 async function deleteMsg(id) {
     if (confirm("Delete this message?")) {
         await dbClient.from('messages').delete().eq('id', id);
-        loadNotes();
     }
 }
 
@@ -822,7 +825,6 @@ function calculateDays() {
     document.getElementById("countdownBanner").innerText = `❤️ from that day: ${dayCount} days`;
 }
 
-// Event trigger for entering password with Enter key
 document.getElementById("secretPasscodeField").addEventListener("keypress", (e) => { if (e.key === "Enter") checkSecretPassword(); });
 
 document.getElementById("noteText").addEventListener("keypress", (e) => { 
@@ -837,8 +839,6 @@ initAudioTrack();
 calculateDays();
 
 window.onload = () => {
-    // Continuous sync systems kick off automatically after the password screen is unlocked
-    setInterval(loadNotes, 4000);
     setInterval(updatePresenceUI, 4000);
     setInterval(fetchLastSeen, 5000);
     setInterval(logMyPresence, 10000); 
@@ -846,5 +846,6 @@ window.onload = () => {
 </script>
 </body>
 </html>
-                        
-        
+                    
+    
+            

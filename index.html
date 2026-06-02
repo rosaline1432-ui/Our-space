@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -537,7 +537,12 @@ function checkSecretPassword() {
         
         setupPresence();
         initMessagesRealtime();
+        
+        // Immediately log current user presence status right after password check
+        logMyPresence();
         initStatusRealtime();
+        fetchLastSeen();
+        
         loadNotes();
     } else {
         errorEl.style.display = "block";
@@ -903,5 +908,5 @@ window.onload = () => {
 </script>
 </body>
 </html>
-                                   
-            
+
+        

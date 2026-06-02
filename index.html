@@ -1,4 +1,4 @@
-     <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -501,12 +501,14 @@ const dbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 let presenceChannel = null;
 let messagesRealtimeChannel = null;
+let statusRealtimeChannel = null;
 let myConfiguredName = "King";
 let partnerConfiguredName = "Queen";
 let isTypingState = false;
 let typingTimeout = null;
 let sessionToken = "user_" + Math.random().toString(36).substring(5);
 let collectivePresence = {};
+let partnerLastActiveTimestamp = null;
 
 const romanticPlaylist = [
     { title: "Aradhiya. kushi💖", url: "https://files.catbox.moe/w3v3hb.mp3" },
@@ -535,6 +537,7 @@ function checkSecretPassword() {
         
         setupPresence();
         initMessagesRealtime();
+        initStatusRealtime();
         loadNotes();
     } else {
         errorEl.style.display = "block";
@@ -593,6 +596,7 @@ function changeIdentityRole() {
     localStorage.setItem("chat_user_role", document.getElementById("roleSelector").value);
     loadIdentity();
     setupPresence();
+    initStatusRealtime();
     loadNotes();
     fetchLastSeen();
 }
@@ -656,8 +660,10 @@ function handleTyping() {
 async function logMyPresence() {
     if (document.getElementById("lockScreen").classList.contains("active")) return; 
     const rawRole = document.getElementById("roleSelector").value;
+    const exactName = rawRole === "queen" ? "Queen" : "King";
+
     await dbClient.from('user_status').upsert(
-        { username: rawRole, last_active: new Date().toISOString() },
+        { username: exactName, last_active: new Date().toISOString() },
         { onConflict: 'username' }
     );
 }
@@ -665,25 +671,43 @@ async function logMyPresence() {
 async function fetchLastSeen() {
     if (document.getElementById("lockScreen").classList.contains("active")) return;
     const currentIdentity = document.getElementById("roleSelector").value;
-    const targetRole = currentIdentity === "queen" ? "king" : "queen";
+    const targetRole = currentIdentity === "queen" ? "King" : "Queen";
     
     const { data, error } = await dbClient.from('user_status').select('last_active').eq('username', targetRole).maybeSingle();
-    const displayEl = document.getElementById("lastSeenDisplay");
     
     if (data && data.last_active) {
-        const dateObj = new Date(data.last_active);
-        const today = new Date();
-        
-        let dayLabel = "today at ";
-        if (dateObj.toDateString() !== today.toDateString()) {
-            dayLabel = dateObj.toLocaleDateString([], {month:'short', day:'numeric'}) + " at ";
-        }
-        
-        const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-        displayEl.innerText = `last seen ${dayLabel}${timeStr}`;
+        partnerLastActiveTimestamp = data.last_active;
+        renderCalculatedLastSeen();
     } else {
-        displayEl.innerText = "last seen recently";
+        document.getElementById("lastSeenDisplay").innerText = "last seen recently";
     }
+}
+
+function renderCalculatedLastSeen() {
+    const displayEl = document.getElementById("lastSeenDisplay");
+    if (!partnerLastActiveTimestamp || !displayEl) return;
+
+    const dateObj = new Date(partnerLastActiveTimestamp);
+    const today = new Date();
+    const diffInSeconds = Math.floor((today - dateObj) / 1000);
+    const normalizedSeconds = diffInSeconds < 0 ? 0 : diffInSeconds;
+
+    if (normalizedSeconds < 60) {
+        displayEl.innerText = "active now";
+        return;
+    } else if (normalizedSeconds < 3600) {
+        const mins = Math.floor(normalizedSeconds / 60);
+        displayEl.innerText = `last seen ${mins}m ago`;
+        return;
+    }
+
+    let dayLabel = "today at ";
+    if (dateObj.toDateString() !== today.toDateString()) {
+        dayLabel = dateObj.toLocaleDateString([], {month:'short', day:'numeric'}) + " at ";
+    }
+    
+    const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+    displayEl.innerText = `last seen ${dayLabel}${timeStr}`;
 }
 
 function updatePresenceUI() {
@@ -709,11 +733,13 @@ function updatePresenceUI() {
     } else if (online) {
         statusBox.className = "status-container online";
         textEl.innerText = "online";
-        seenEl.style.display = "none";
+        seenEl.style.display = "block";
+        seenEl.innerText = "active now";
     } else {
         statusBox.className = "status-container offline";
         textEl.innerText = "offline";
         seenEl.style.display = "block";
+        renderCalculatedLastSeen();
     }
 }
 
@@ -741,6 +767,28 @@ function initMessagesRealtime() {
         .channel('schema-db-changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
             loadNotes();
+        })
+        .subscribe();
+}
+
+function initStatusRealtime() {
+    if (statusRealtimeChannel) statusRealtimeChannel.unsubscribe();
+    
+    const currentIdentity = document.getElementById("roleSelector").value;
+    const targetRole = currentIdentity === "queen" ? "King" : "Queen";
+
+    statusRealtimeChannel = dbClient
+        .channel('status-db-changes')
+        .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'user_status',
+            filter: `username=eq.${targetRole}`
+        }, (payload) => {
+            if (payload.new && payload.new.last_active) {
+                partnerLastActiveTimestamp = payload.new.last_active;
+                updatePresenceUI();
+            }
         })
         .subscribe();
 }
@@ -855,5 +903,5 @@ window.onload = () => {
 </script>
 </body>
 </html>
-        
-                        
+                                   
+            

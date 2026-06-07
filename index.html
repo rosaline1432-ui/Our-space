@@ -167,14 +167,15 @@
             transition: background 0.4s ease;
         }
 
+        /* FIX: Made transparent with text shadow to ensure headers read perfectly over images */
         header {
-            background: rgba(26, 16, 21, 0.85);
-            backdrop-filter: blur(12px);
+            background: rgba(13, 8, 11, 0.4);
+            backdrop-filter: blur(8px);
             padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(46, 28, 37, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             flex-shrink: 0;
             z-index: 10;
         }
@@ -204,6 +205,7 @@
             font-weight: 600;
             display: flex;
             align-items: center;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
         }
         .status-container {
             display: flex;
@@ -223,17 +225,19 @@
         }
         .status-text {
             font-size: 0.8rem;
-            color: #b5a4ab;
+            color: #f5f0f2;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
         .last-seen-text {
             font-size: 0.7rem;
-            color: #a38f99;
+            color: #ffb3c6;
             margin-top: 1px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
         .partner-mood-badge {
             font-size: 0.75rem;
-            background: rgba(255, 77, 121, 0.2);
-            color: #ff4d79;
+            background: rgba(255, 77, 121, 0.3);
+            color: #fff;
             padding: 2px 8px;
             border-radius: 12px;
             margin-left: 8px;
@@ -252,20 +256,25 @@
             gap: 10px;
         }
         .settings-gear-btn {
-            background: none;
-            border: none;
-            color: #b5a4ab;
-            font-size: 1.3rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 1.1rem;
             cursor: pointer;
-            padding: 4px;
-            transition: color 0.2s;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
         }
-        .settings-gear-btn:hover { color: #ff4d79; }
+        .settings-gear-btn:hover { color: #ff4d79; background: rgba(0,0,0,0.6); }
 
         .role-badge-select {
-            background: #2b1b23;
-            border: 1px solid #4a303d;
-            color: #ffb3c6;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
@@ -274,14 +283,15 @@
         }
 
         /* --- WIDGET CONTAINER DECK --- */
+        /* FIX: Changed block backdrops to translucent so photo passes completely through */
         .widgets-deck {
-            background: rgba(20, 12, 16, 0.8);
-            backdrop-filter: blur(12px);
+            background: rgba(13, 8, 11, 0.3);
+            backdrop-filter: blur(8px);
             padding: 10px 16px;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            border-bottom: 1px solid rgba(35, 21, 28, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             flex-shrink: 0;
             z-index: 9;
         }
@@ -292,8 +302,9 @@
         }
         .countdown-widget {
             font-size: 0.85rem;
-            color: #ffb3c6;
-            font-weight: 600;
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
         .playlist-wrapper {
             display: flex;
@@ -302,21 +313,23 @@
         }
         .current-track-name {
             font-size: 0.78rem;
-            color: #ffb3c6;
+            color: #fff;
             max-width: 120px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
         .music-mini-control {
             font-size: 0.78rem;
-            color: #ff4d79;
+            color: #fff;
             cursor: pointer;
-            background: #25151e;
+            background: rgba(255, 77, 121, 0.3);
             padding: 5px 12px;
             border-radius: 20px;
-            border: 1px solid #3d2230;
-            font-weight: 500;
+            border: 1px solid rgba(255,255,255,0.15);
+            font-weight: 600;
+            backdrop-filter: blur(4px);
         }
 
         /* --- MOOD BAR DECK --- */
@@ -329,14 +342,15 @@
         }
         .mood-scroller-bar::-webkit-scrollbar { display: none; }
         .mood-pill-item {
-            background: #1d1219;
-            border: 1px solid #361f2c;
-            color: #f5f0f2;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
             padding: 6px 14px;
             border-radius: 16px;
             font-size: 0.78rem;
             white-space: nowrap;
             cursor: pointer;
+            backdrop-filter: blur(4px);
             transition: all 0.2s;
         }
         .mood-pill-item.active {
@@ -372,12 +386,12 @@
             margin: 8px 0;
         }
         .date-badge {
-            background-color: rgba(35, 21, 28, 0.85);
-            color: #ffb3c6;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
             font-size: 0.75rem;
             padding: 4px 14px;
             border-radius: 20px;
-            border: 1px solid #3d2230;
+            border: 1px solid rgba(255,255,255,0.15);
             backdrop-filter: blur(4px);
         }
 
@@ -392,7 +406,7 @@
             font-size: 0.98rem;
             line-height: 1.45;
             position: relative;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         .chat-row.sent .chat-bubble {
             background: linear-gradient(135deg, #ff4d79, #ff2a5f);
@@ -400,11 +414,11 @@
             border-bottom-right-radius: 4px;
         }
         .chat-row.received .chat-bubble {
-            background: rgba(34, 22, 28, 0.9);
+            background: rgba(20, 21, 26, 0.85);
             color: #f5f0f2;
             border-bottom-left-radius: 4px;
-            border: 1px solid #33202a;
-            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
         }
 
         .bubble-media-preview {
@@ -560,63 +574,83 @@
             flex-shrink: 0;
         }
 
-        /* --- WALLPAPER ADJUSTMENT MODAL (UPDATED WITH GALLERY UPLOAD) --- */
-        .wallpaper-panel-modal {
+        /* --- FIX: WALLPAPER PANEL OVERLAY MODAL --- */
+        .wallpaper-backdrop-modal {
             display: none;
-            position: absolute;
-            top: 70px;
-            right: 16px;
-            background: #1a1015;
-            border: 1px solid #3d2230;
-            border-radius: 16px;
-            padding: 16px;
-            width: 260px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            z-index: 100;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
         }
-        .wallpaper-panel-modal.open { display: block; }
+        .wallpaper-backdrop-modal.open { display: flex; }
+        
+        .wallpaper-panel-modal {
+            background: #1c141a;
+            border: 1px solid #422836;
+            border-radius: 24px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+            text-align: center;
+        }
         .wallpaper-panel-modal h3 {
-            font-size: 0.85rem;
-            color: #ffb3c6;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        .wallpaper-panel-modal p {
+            font-size: 0.8rem;
+            color: #b5a4ab;
+            margin-bottom: 20px;
         }
         .wallpaper-swatch-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 14px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
         .swatch-item {
-            height: 42px;
-            border-radius: 8px;
+            height: 50px;
+            border-radius: 12px;
             cursor: pointer;
             border: 2px solid transparent;
             background-size: cover;
+            background-position: center;
         }
         .swatch-item.selected { border-color: #ff4d79; }
         
         .gallery-wallpaper-btn {
             width: 100%;
-            background: #2b1b23;
-            border: 1px solid #4a303d;
-            color: #ffb3c6;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            background: linear-gradient(135deg, #ff4d79, #ff2a5f);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            margin-top: 4px;
-            transition: all 0.2s;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(255, 42, 95, 0.2);
         }
-        .gallery-wallpaper-btn:active {
-            transform: scale(0.97);
-            background: #3d2733;
+        .close-wallpaper-panel-btn {
+            width: 100%;
+            background: #2b1b23;
+            border: 1px solid #4a303d;
+            color: #ffb3c6;
+            padding: 11px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -666,17 +700,22 @@
             </div>
         </header>
 
-        <div class="wallpaper-panel-modal" id="wallpaperModal">
-            <h3>Select Theme Background</h3>
-            <div class="wallpaper-swatch-grid">
-                <div class="swatch-item selected" style="background-color: #0d080b;" onclick="setWallpaper('preset-dark', this)"></div>
-                <div class="swatch-item" style="background: linear-gradient(145deg, #150a21, #08030f);" onclick="setWallpaper('preset-purple', this)"></div>
-                <div class="swatch-item" style="background: linear-gradient(145deg, #240a12, #0d0205);" onclick="setWallpaper('preset-rose', this)"></div>
-                <div class="swatch-item" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png'); background-color: #0b0f19;" onclick="setWallpaper('preset-stars', this)"></div>
+        <div class="wallpaper-backdrop-modal" id="wallpaperBackdropOverlay">
+            <div class="wallpaper-panel-modal">
+                <h3>Chat Theme Wallpaper</h3>
+                <p>Choose an image directly from your device gallery or presets</p>
+                
+                <div class="wallpaper-swatch-grid">
+                    <div class="swatch-item selected" style="background-color: #0d080b;" onclick="setWallpaper('preset-dark', this)"></div>
+                    <div class="swatch-item" style="background: linear-gradient(145deg, #150a21, #08030f);" onclick="setWallpaper('preset-purple', this)"></div>
+                    <div class="swatch-item" style="background: linear-gradient(145deg, #240a12, #0d0205);" onclick="setWallpaper('preset-rose', this)"></div>
+                    <div class="swatch-item" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png'); background-color: #0b0f19;" onclick="setWallpaper('preset-stars', this)"></div>
+                </div>
+                
+                <input type="file" id="wallpaperGalleryPicker" accept="image/*" style="display: none;" onchange="handleWallpaperGalleryUpload(this)">
+                <button class="gallery-wallpaper-btn" onclick="document.getElementById('wallpaperGalleryPicker').click()">🖼️ Select From Gallery</button>
+                <button class="close-wallpaper-panel-btn" onclick="toggleWallpaperPanel()">Cancel</button>
             </div>
-            
-            <input type="file" id="wallpaperGalleryPicker" accept="image/*" style="display: none;" onchange="handleWallpaperGalleryUpload(this)">
-            <button class="gallery-wallpaper-btn" onclick="document.getElementById('wallpaperGalleryPicker').click()">🖼️ Choose from Device</button>
         </div>
 
         <div class="widgets-deck">
@@ -823,7 +862,6 @@ function loadIdentity() {
     document.getElementById("partnerDisplayTitle").innerText = partnerConfiguredName;
     document.getElementById("portalSubText").innerText = `Welcome Back, ${myConfiguredName} ✨`;
     
-    // Recover Background Layout Settings Across Full Screen
     const cachedBg = localStorage.getItem("chat_wallpaper_style") || "preset-dark";
     if(cachedBg.startsWith("http")) {
         applyCustomBackgroundStyle(cachedBg);
@@ -842,10 +880,9 @@ function changeIdentityRole() {
 }
 
 function toggleWallpaperPanel() {
-    document.getElementById("wallpaperModal").classList.toggle("open");
+    document.getElementById("wallpaperBackdropOverlay").classList.toggle("open");
 }
 
-/* FIX: APPLIES WALLPAPER TO THE FULL #chatScreen ELEMENT */
 function setWallpaper(styleKey, element) {
     const mainViewContainer = document.getElementById("chatScreen");
     mainViewContainer.style.backgroundImage = "none";
@@ -873,7 +910,6 @@ function applyCustomBackgroundStyle(urlStr) {
     mainViewContainer.style.backgroundPosition = "center";
 }
 
-/* FIX: HANDLES DIRECT MOBILE GALLERY PICKER IMAGE UPLOADS FOR THE BACKGROUND THEME */
 async function handleWallpaperGalleryUpload(inputInstance) {
     if (!inputInstance.files || inputInstance.files.length === 0) return;
     const file = inputInstance.files[0];
@@ -883,7 +919,7 @@ async function handleWallpaperGalleryUpload(inputInstance) {
 
     const { data, error } = await dbClient.storage.from('chat-media').upload(uniqueFileName, file);
     if (error) {
-        alert("Gallery theme upload processing failed. Double check your storage permissions.");
+        alert("Gallery wallpaper upload processing failed.");
         return;
     }
 
@@ -894,6 +930,7 @@ async function handleWallpaperGalleryUpload(inputInstance) {
     
     document.querySelectorAll('.swatch-item').forEach(s => s.classList.remove('selected'));
     inputInstance.value = "";
+    toggleWallpaperPanel(); // Automatically close overlay window upon completion
 }
 
 async function updateMyMood(moodText) {
@@ -910,7 +947,7 @@ async function handleVoiceNoteRecording() {
     
     if (!isCurrentlyRecordingAudio) {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            alert("Audio device input access is blocked or unsupported on this device viewport.");
+            alert("Audio device input access is blocked or unsupported.");
             return;
         }
         
@@ -933,7 +970,7 @@ async function handleVoiceNoteRecording() {
             isCurrentlyRecordingAudio = true;
             recBtn.classList.add("recording");
         } catch(err) {
-            console.error("Mic layout initialization failed:", err);
+            console.error("Mic initialization failed:", err);
         }
     } else {
         if(mediaRecorderInstance) mediaRecorderInstance.stop();
@@ -1024,7 +1061,7 @@ async function handleImageUpload(input) {
 
     const { data, error } = await dbClient.storage.from('chat-media').upload(uniquePath, file);
     if (error) {
-        alert("Upload setup blocked. Confirm your Supabase configuration profile.");
+        alert("Upload blocked.");
         btn.disabled = false;
         return;
     }
@@ -1306,15 +1343,6 @@ document.getElementById("noteText").addEventListener("keypress", (e) => {
     } 
 });
 
-document.addEventListener('click', (e) => {
-    const modal = document.getElementById("wallpaperModal");
-    const gearBtn = document.querySelector(".settings-gear-btn");
-    const galleryBtn = document.querySelector(".gallery-wallpaper-btn");
-    if(modal.classList.contains("open") && !modal.contains(e.target) && e.target !== gearBtn && e.target !== galleryBtn) {
-        modal.classList.remove("open");
-    }
-});
-
 loadIdentity();
 initAudioTrack();
 calculateDays();
@@ -1327,3 +1355,4 @@ window.onload = () => {
 </script>
 </body>
 </html>
+                        

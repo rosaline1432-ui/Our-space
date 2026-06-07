@@ -158,14 +158,23 @@
         }
         .enter-space-btn:active { transform: scale(0.96); }
 
-        /* --- SCREEN 2: LIVE CHAT AREA --- */
+        /* --- SCREEN 2: LIVE CHAT AREA VIEWPORT --- */
+        #chatScreen {
+            background-color: #0d080b;
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            transition: background 0.4s ease;
+        }
+
         header {
-            background: #1a1015;
+            background: rgba(26, 16, 21, 0.85);
+            backdrop-filter: blur(12px);
             padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #2e1c25;
+            border-bottom: 1px solid rgba(46, 28, 37, 0.5);
             flex-shrink: 0;
             z-index: 10;
         }
@@ -264,15 +273,17 @@
             outline: none;
         }
 
-        /* --- WIDGET CONTAINER DECK (NO OVERLAPS) --- */
+        /* --- WIDGET CONTAINER DECK --- */
         .widgets-deck {
-            background: #140c10;
+            background: rgba(20, 12, 16, 0.8);
+            backdrop-filter: blur(12px);
             padding: 10px 16px;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            border-bottom: 1px solid #23151c;
+            border-bottom: 1px solid rgba(35, 21, 28, 0.5);
             flex-shrink: 0;
+            z-index: 9;
         }
         .widgets-row-top {
             display: flex;
@@ -308,7 +319,7 @@
             font-weight: 500;
         }
 
-        /* --- FEATURE 1: MOOD BAR DECK --- */
+        /* --- MOOD BAR DECK --- */
         .mood-scroller-bar {
             display: flex;
             gap: 8px;
@@ -342,11 +353,7 @@
             flex-direction: column;
             overflow: hidden;
             position: relative;
-            background-color: #0d080b;
-            background-position: center;
-            background-size: cover;
-            background-repeat: no-repeat;
-            transition: background 0.4s ease;
+            background: transparent;
         }
         .messages-display {
             flex: 1;
@@ -409,7 +416,7 @@
             cursor: pointer;
         }
 
-        /* --- FEATURE 3: AUDIO PLAYER INSIDE BUBBLE --- */
+        /* --- AUDIO PLAYER INSIDE BUBBLE --- */
         .chat-voice-player {
             display: flex;
             align-items: center;
@@ -492,12 +499,13 @@
 
         /* --- BALANCED INPUT CONSOLE DECK --- */
         .chat-input-area {
-            background: #16171b;
+            background: rgba(22, 23, 27, 0.9);
+            backdrop-filter: blur(12px);
             padding: 12px 14px;
             display: flex;
             align-items: center;
             gap: 10px;
-            border-top: 1px solid #222327;
+            border-top: 1px solid rgba(34, 35, 39, 0.6);
             flex-shrink: 0;
             z-index: 10;
         }
@@ -552,7 +560,7 @@
             flex-shrink: 0;
         }
 
-        /* --- FEATURE 2: WALLPAPER ADJUSTMENT MODAL --- */
+        /* --- WALLPAPER ADJUSTMENT MODAL (UPDATED WITH GALLERY UPLOAD) --- */
         .wallpaper-panel-modal {
             display: none;
             position: absolute;
@@ -562,7 +570,7 @@
             border: 1px solid #3d2230;
             border-radius: 16px;
             padding: 16px;
-            width: 250px;
+            width: 260px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
             z-index: 100;
         }
@@ -588,15 +596,27 @@
             background-size: cover;
         }
         .swatch-item.selected { border-color: #ff4d79; }
-        .custom-url-swatch-input {
+        
+        .gallery-wallpaper-btn {
             width: 100%;
-            background: #0d080b;
-            border: 1px solid #3d2230;
-            padding: 8px 12px;
+            background: #2b1b23;
+            border: 1px solid #4a303d;
+            color: #ffb3c6;
+            padding: 10px;
             border-radius: 8px;
-            color: white;
-            font-size: 0.8rem;
-            outline: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 4px;
+            transition: all 0.2s;
+        }
+        .gallery-wallpaper-btn:active {
+            transform: scale(0.97);
+            background: #3d2733;
         }
     </style>
 </head>
@@ -647,14 +667,16 @@
         </header>
 
         <div class="wallpaper-panel-modal" id="wallpaperModal">
-            <h3>Select Wallpaper</h3>
+            <h3>Select Theme Background</h3>
             <div class="wallpaper-swatch-grid">
                 <div class="swatch-item selected" style="background-color: #0d080b;" onclick="setWallpaper('preset-dark', this)"></div>
                 <div class="swatch-item" style="background: linear-gradient(145deg, #150a21, #08030f);" onclick="setWallpaper('preset-purple', this)"></div>
                 <div class="swatch-item" style="background: linear-gradient(145deg, #240a12, #0d0205);" onclick="setWallpaper('preset-rose', this)"></div>
                 <div class="swatch-item" style="background-image: url('https://www.transparenttextures.com/patterns/stardust.png'); background-color: #0b0f19;" onclick="setWallpaper('preset-stars', this)"></div>
             </div>
-            <input type="text" class="custom-url-swatch-input" id="customWallpaperInput" placeholder="Paste custom Image URL..." oninput="setCustomWallpaperUrl(this.value)">
+            
+            <input type="file" id="wallpaperGalleryPicker" accept="image/*" style="display: none;" onchange="handleWallpaperGalleryUpload(this)">
+            <button class="gallery-wallpaper-btn" onclick="document.getElementById('wallpaperGalleryPicker').click()">🖼️ Choose from Device</button>
         </div>
 
         <div class="widgets-deck">
@@ -677,7 +699,7 @@
             </div>
         </div>
 
-        <div class="chat-container" id="chatViewportBg">
+        <div class="chat-container">
             <div class="messages-display" id="notesSpace"></div>
 
             <div class="chat-input-area">
@@ -714,7 +736,6 @@ let collectivePresence = {};
 let partnerLastActiveTimestamp = null;
 let myCurrentSelectedMood = "Normal 😊";
 
-// FEATURE 3: STATE ENGINE VARIABLES
 let mediaRecorderInstance = null;
 let recordedAudioChunks = [];
 let isCurrentlyRecordingAudio = false;
@@ -802,11 +823,10 @@ function loadIdentity() {
     document.getElementById("partnerDisplayTitle").innerText = partnerConfiguredName;
     document.getElementById("portalSubText").innerText = `Welcome Back, ${myConfiguredName} ✨`;
     
-    // Feature 2: Recover Configured Wallpaper Storage Cache
+    // Recover Background Layout Settings Across Full Screen
     const cachedBg = localStorage.getItem("chat_wallpaper_style") || "preset-dark";
     if(cachedBg.startsWith("http")) {
-        setCustomWallpaperUrl(cachedBg);
-        document.getElementById("customWallpaperInput").value = cachedBg;
+        applyCustomBackgroundStyle(cachedBg);
     } else {
         setWallpaper(cachedBg, null);
     }
@@ -821,21 +841,21 @@ function changeIdentityRole() {
     fetchLastSeen();
 }
 
-// FEATURE 2: MODAL INTERACTION HANDLERS
 function toggleWallpaperPanel() {
     document.getElementById("wallpaperModal").classList.toggle("open");
 }
 
+/* FIX: APPLIES WALLPAPER TO THE FULL #chatScreen ELEMENT */
 function setWallpaper(styleKey, element) {
-    const view = document.getElementById("chatViewportBg");
-    view.style.backgroundImage = "none";
+    const mainViewContainer = document.getElementById("chatScreen");
+    mainViewContainer.style.backgroundImage = "none";
     
-    if(styleKey === 'preset-dark') view.style.backgroundColor = "#0d080b";
-    else if(styleKey === 'preset-purple') view.style.background = "linear-gradient(145deg, #150a21, #08030f)";
-    else if(styleKey === 'preset-rose') view.style.background = "linear-gradient(145deg, #240a12, #0d0205)";
+    if(styleKey === 'preset-dark') mainViewContainer.style.backgroundColor = "#0d080b";
+    else if(styleKey === 'preset-purple') mainViewContainer.style.background = "linear-gradient(145deg, #150a21, #08030f)";
+    else if(styleKey === 'preset-rose') mainViewContainer.style.background = "linear-gradient(145deg, #240a12, #0d0205)";
     else if(styleKey === 'preset-stars') {
-        view.style.backgroundColor = "#0b0f19";
-        view.style.backgroundImage = "url('https://www.transparenttextures.com/patterns/stardust.png')";
+        mainViewContainer.style.backgroundColor = "#0b0f19";
+        mainViewContainer.style.backgroundImage = "url('https://www.transparenttextures.com/patterns/stardust.png')";
     }
     
     localStorage.setItem("chat_wallpaper_style", styleKey);
@@ -845,14 +865,37 @@ function setWallpaper(styleKey, element) {
     }
 }
 
-function setCustomWallpaperUrl(urlStr) {
+function applyCustomBackgroundStyle(urlStr) {
     if(!urlStr.trim()) return;
-    const view = document.getElementById("chatViewportBg");
-    view.style.backgroundImage = `url('${urlStr}')`;
-    localStorage.setItem("chat_wallpaper_style", urlStr);
+    const mainViewContainer = document.getElementById("chatScreen");
+    mainViewContainer.style.backgroundImage = `url('${urlStr}')`;
+    mainViewContainer.style.backgroundSize = "cover";
+    mainViewContainer.style.backgroundPosition = "center";
 }
 
-// FEATURE 1: LIVE MOOD MANAGER
+/* FIX: HANDLES DIRECT MOBILE GALLERY PICKER IMAGE UPLOADS FOR THE BACKGROUND THEME */
+async function handleWallpaperGalleryUpload(inputInstance) {
+    if (!inputInstance.files || inputInstance.files.length === 0) return;
+    const file = inputInstance.files[0];
+    
+    const ext = file.name.split('.').pop();
+    const uniqueFileName = `bg_${Date.now()}_${Math.random().toString(36).substring(5)}.${ext}`;
+
+    const { data, error } = await dbClient.storage.from('chat-media').upload(uniqueFileName, file);
+    if (error) {
+        alert("Gallery theme upload processing failed. Double check your storage permissions.");
+        return;
+    }
+
+    const { data: urlObj } = dbClient.storage.from('chat-media').getPublicUrl(uniqueFileName);
+    
+    applyCustomBackgroundStyle(urlObj.publicUrl);
+    localStorage.setItem("chat_wallpaper_style", urlObj.publicUrl);
+    
+    document.querySelectorAll('.swatch-item').forEach(s => s.classList.remove('selected'));
+    inputInstance.value = "";
+}
+
 async function updateMyMood(moodText) {
     myCurrentSelectedMood = moodText;
     document.querySelectorAll('.mood-pill-item').forEach(pill => {
@@ -862,13 +905,12 @@ async function updateMyMood(moodText) {
     await logMyPresence();
 }
 
-// FEATURE 3: AUDIO ENGINE RECORDEE CONTROLLER
 async function handleVoiceNoteRecording() {
     const recBtn = document.getElementById("voiceRecordBtn");
     
     if (!isCurrentlyRecordingAudio) {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            alert("Audio media input access is blocked or unsupported on this specific device viewport.");
+            alert("Audio device input access is blocked or unsupported on this device viewport.");
             return;
         }
         
@@ -891,7 +933,7 @@ async function handleVoiceNoteRecording() {
             isCurrentlyRecordingAudio = true;
             recBtn.classList.add("recording");
         } catch(err) {
-            console.error("Mic initialization layout failed:", err);
+            console.error("Mic layout initialization failed:", err);
         }
     } else {
         if(mediaRecorderInstance) mediaRecorderInstance.stop();
@@ -911,7 +953,7 @@ async function uploadVoiceNoteToStorage(blobFile) {
     });
     
     if (error) {
-        alert("Audio engine upload handling failed.");
+        alert("Audio recording file sync failed.");
         postBtn.disabled = false;
         return;
     }
@@ -982,7 +1024,7 @@ async function handleImageUpload(input) {
 
     const { data, error } = await dbClient.storage.from('chat-media').upload(uniquePath, file);
     if (error) {
-        alert("Upload error! Verify your bucket permissions settings.");
+        alert("Upload setup blocked. Confirm your Supabase configuration profile.");
         btn.disabled = false;
         return;
     }
@@ -1178,8 +1220,6 @@ async function loadNotes() {
         }
 
         let msgAuthor = msg.author ? msg.author.trim() : "King";
-        if (msgAuthor.toLowerCase() === "parker") msgAuthor = "King";
-
         const isMe = msgAuthor.toLowerCase() === myConfiguredName.toLowerCase();
         const side = isMe ? "sent" : "received";
         const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -1269,7 +1309,8 @@ document.getElementById("noteText").addEventListener("keypress", (e) => {
 document.addEventListener('click', (e) => {
     const modal = document.getElementById("wallpaperModal");
     const gearBtn = document.querySelector(".settings-gear-btn");
-    if(modal.classList.contains("open") && !modal.contains(e.target) && e.target !== gearBtn) {
+    const galleryBtn = document.querySelector(".gallery-wallpaper-btn");
+    if(modal.classList.contains("open") && !modal.contains(e.target) && e.target !== gearBtn && e.target !== galleryBtn) {
         modal.classList.remove("open");
     }
 });
@@ -1286,5 +1327,3 @@ window.onload = () => {
 </script>
 </body>
 </html>
-
-                        
